@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Cafe - Restaurant Booking & Menu Management</title>
+  <!-- Main Styles -->
+  <link rel="stylesheet" href="style.css?v=17">
+</head>
+<body>
+  <script>
+    if (!sessionStorage.getItem('authToken')) {
+      document.body.classList.add('logged-out');
+    }
+  </script>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div class="brand" style="justify-content: center; padding: 16px 24px; border-bottom: 1px solid var(--border-glass);">
+      <img src="images/logo.png" alt="Aura Cafe Logo" style="height: 64px; max-width: 100%; object-fit: contain;">
+    </div>
+    
+    <ul class="nav-menu">
+      <li>
+        <a class="nav-item active" data-screen="dashboard">
+          <svg viewBox="0 0 24 24"><path d="M13,3V9H21V3H13M3,13V21H11V13H3M3,3V11H11V3H3M13,15V21H21V15H13Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Dashboard
+        </a>
+      </li>
+      <li>
+        <a class="nav-item" data-screen="bookings">
+          <svg viewBox="0 0 24 24"><path d="M19,4H5A2,2 0 0,0 3,6V18A2,2 0 0,0 5,20H19A2,2 0 0,0 21,18V6A2,2 0 0,0 19,4M19,18H5V8H19V18M12,10.5A1.5,1.5 0 0,1 13.5,12A1.5,1.5 0 0,1 12,13.5A1.5,1.5 0 0,1 10.5,12A1.5,1.5 0 0,1 12,10.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Reservations
+        </a>
+      </li>
+      <li>
+        <a class="nav-item" data-screen="order-entry">
+          <svg viewBox="0 0 24 24"><path d="M11,9H13V7H11M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,17H13V11H11V17Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Place Order
+        </a>
+      </li>
+      <li>
+        <a class="nav-item" data-screen="billing">
+          <svg viewBox="0 0 24 24"><path d="M19,4H5A2,2 0 0,0 3,6V18A2,2 0 0,0 5,20H19A2,2 0 0,0 21,18V6A2,2 0 0,0 19,4M19,18H5V8H19V18M12,10.5A1.5,1.5 0 0,1 13.5,12A1.5,1.5 0 0,1 12,13.5A1.5,1.5 0 0,1 10.5,12A1.5,1.5 0 0,1 12,10.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Billing & History
+        </a>
+      </li>
+
+      <li>
+        <a class="nav-item" data-screen="reports">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+          Daily Revenue
+        </a>
+      </li>
+      <li id="sidebar-admin-management-li" style="display: none;">
+        <a class="nav-item" data-screen="admin-management" id="nav-admin-management">
+          <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Admin Management
+        </a>
+      </li>
+      <li>
+        <a class="nav-item" id="nav-change-password">
+          <svg viewBox="0 0 24 24"><path d="M12,15C13.66,15 15,13.66 15,12C15,10.34 13.66,9 12,9C10.34,9 9,10.34 9,12C9,13.66 10.34,15 12,15M19.14,12.94C19.18,12.63 19.2,12.32 19.2,12C19.2,11.68 19.18,11.37 19.14,11.06L21.16,9.48C21.34,9.33 21.39,9.08 21.28,8.88L19.36,5.55C19.25,5.35 19,5.27 18.79,5.35L16.42,6.31C15.92,5.92 15.38,5.6 14.79,5.35L14.43,2.83C14.4,2.6 14.2,2.43 13.97,2.43H10.03C9.8,2.43 9.6,2.6 9.57,2.83L9.21,5.35C8.62,5.6 8.08,5.92 7.58,6.31L5.21,5.35C5,5.27 4.75,5.35 4.64,5.55L2.72,8.88C2.61,9.08 2.66,9.33 2.84,9.48L4.86,11.06C4.82,11.37 4.8,11.68 4.8,12C4.8,12.32 4.82,12.63 4.86,12.94L2.84,14.52C2.66,14.67 2.61,14.92 2.72,15.12L4.64,18.45C4.75,18.65 5,18.73 5.21,18.65L7.58,17.69C8.08,18.08 8.62,18.4 9.21,18.65L9.57,21.17C9.6,21.4 9.8,21.57 10.03,21.57H13.97C14.2,21.57 14.4,21.4 14.43,21.17L14.79,18.65C15.38,18.4 15.92,18.08 16.42,17.69L18.79,18.65C19,18.73 19.25,18.65 19.36,18.45L21.28,15.12C21.39,14.92 21.34,14.67 21.16,14.52L19.14,12.94Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Change Password
+        </a>
+      </li>
+      <li>
+        <a class="nav-item" id="nav-logout" style="color: var(--danger);">
+          <svg viewBox="0 0 24 24" style="stroke: var(--danger);"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Log Out
+        </a>
+      </li>
+    </ul>
+    
+    <div class="sidebar-footer">
+      <p>© Aura Cafe 2026</p>
+      <p style="font-size:0.7rem; margin-top:4px;">Internship Prototype</p>
+    </div>
+  </aside>
+
+  <!-- App Main Content -->
+  <main class="main-content">
+    
+    <!-- Top Bar -->
+    <header class="top-bar">
+      <div class="top-title">
+        <h1 id="current-screen-title">Dashboard</h1>
+      </div>
+      <div class="top-actions">
+        <button class="btn btn-secondary" id="theme-toggle" title="Toggle Theme" style="width: 40px; height: 40px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; padding: 0;">
+          <svg id="theme-toggle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Icon populated dynamically -->
+          </svg>
+        </button>
+        <button class="btn btn-primary" id="btn-new-booking">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          New Booking
+        </button>
+      </div>
+    </header>
+
+    <!-- Screen Wrapper -->
+    <section class="screen-container">
+      
+      <!-- 1. DASHBOARD SCREEN -->
+      <div id="screen-dashboard" class="screen active">
+        <!-- Logged In Admin Welcome Card -->
+        <div class="glass-card welcome-card" style="margin-bottom: 24px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary);">
+          <div>
+            <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+              Welcome, <span id="logged-in-admin-name">Admin</span>
+              <span id="logged-in-admin-role-badge" style="font-size: 0.75rem; padding: 3px 10px; border-radius: 12px; font-weight: 600; text-transform: uppercase; background: var(--primary-glow); color: var(--primary); border: 1px solid var(--border-glass);">Super Admin</span>
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 6px;">Manage Aura Cafe reservations and operations smoothly.</p>
+          </div>
+          <div style="text-align: right;">
+            <div style="color: var(--text-muted); font-size: 0.78rem; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">Last Login</div>
+            <div id="logged-in-admin-last-login" style="font-weight: 600; font-size: 0.95rem; color: var(--text-main); margin-top: 4px;">-</div>
+          </div>
+        </div>
+
+        <!-- Summary Stats Grid -->
+        <div class="summary-grid">
+          <div class="glass-card metric-card" id="metric-card-revenue" style="cursor: pointer;">
+            <div class="metric-icon revenue">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Total Revenue</p>
+              <div class="metric-value" id="stat-revenue">₹0.00</div>
+            </div>
+          </div>
+          <div class="glass-card metric-card">
+            <div class="metric-icon occupancy">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Table Occupancy</p>
+              <div class="metric-value" id="stat-occupancy">0%</div>
+            </div>
+          </div>
+          <div class="glass-card metric-card" id="metric-card-bookings" style="cursor: pointer;">
+            <div class="metric-icon bookings">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Active Bookings</p>
+              <div class="metric-value" id="stat-bookings">0</div>
+            </div>
+          </div>
+          <div class="glass-card metric-card">
+            <div class="metric-icon alerts">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Active Alerts</p>
+              <div class="metric-value" id="stat-alerts">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dashboard Layout Grid -->
+        <div class="dashboard-grid">
+          <!-- Live Table Map -->
+          <div class="glass-card">
+            <div class="glass-card-title">Live Table Map & Availability</div>
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom: 20px;">Click a table for quick reservation detail or booking checkout.</p>
+            <div class="table-map-container" id="live-table-map">
+              <!-- Dynamically populated tables 1-10 -->
+            </div>
+          </div>
+
+          <!-- Active Warnings Panel -->
+          <div class="glass-card">
+            <div class="glass-card-title">Operational Alerts</div>
+            <div class="alerts-list" id="dashboard-alerts-list">
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l3 3 5-6"/></svg>
+                <p>All tables operating smoothly. No active warnings.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Guest Feedback Dashboard Widget -->
+        <div class="glass-card" style="margin-top: 24px;">
+          <div class="glass-card-title">Guest Feedback & Satisfaction</div>
+          <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom: 20px;">Real-time ratings, scores, and reviews submitted by checked-out dining guests.</p>
+          
+          <div style="display: grid; grid-template-columns: 1fr; gap: 24px; align-items: start;" class="feedback-widget-inner">
+            <!-- Left: Ratings Stats & Distribution Chart -->
+            <div style="display: grid; grid-template-columns: 1fr; gap: 20px;" class="feedback-stats-col">
+              <div style="display: flex; gap: 20px; align-items: center; background: rgba(13, 148, 136, 0.05); padding: 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-glass);">
+                <div style="text-align: center; min-width: 100px;">
+                  <div id="feedback-widget-overall-number" style="font-size: 3rem; font-weight: 800; color: var(--primary); line-height: 1;">0.0</div>
+                  <div id="feedback-widget-overall-stars" style="color: #f59e0b; font-size: 1.1rem; margin-top: 4px;">☆☆☆☆☆</div>
+                  <div id="feedback-widget-overall-count" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">(0 ratings)</div>
+                </div>
+                <div style="flex-grow: 1; display: grid; grid-template-columns: 1fr; gap: 8px; font-size: 0.85rem;">
+                  <div><span style="color: var(--text-muted);">Food:</span> <strong id="feedback-lbl-food" style="color: var(--text-main); margin-left: 4px;">0.0/5</strong></div>
+                  <div><span style="color: var(--text-muted);">Service:</span> <strong id="feedback-lbl-service" style="color: var(--text-main); margin-left: 4px;">0.0/5</strong></div>
+                  <div><span style="color: var(--text-muted);">Ambience:</span> <strong id="feedback-lbl-ambience" style="color: var(--text-main); margin-left: 4px;">0.0/5</strong></div>
+                </div>
+              </div>
+              <div id="feedback-distribution-container" style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                <!-- Dynamically populated CSS bar charts for ratings distribution -->
+              </div>
+            </div>
+
+            <!-- Right: Recent Comments Feed -->
+            <div style="display: flex; flex-direction: column; max-height: 250px;">
+              <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-muted);">Recent Customer Comments</h4>
+              <div id="feedback-recent-comments-list" style="overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;">
+                <div style="text-align: center; color: var(--text-muted); padding: 30px; font-size: 0.9rem;">No feedback comments recorded yet.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <style>
+          @media (min-width: 768px) {
+            .feedback-widget-inner {
+              grid-template-columns: 1.3fr 1fr !important;
+            }
+            .feedback-stats-col {
+              grid-template-columns: 1fr 1.2fr !important;
+            }
+          }
+        </style>
+      </div>
+
+      <!-- 2. RESERVATIONS LIST SCREEN -->
+      <div id="screen-bookings" class="screen">
+        <div class="glass-card">
+          <div class="glass-card-title">All Guest Bookings</div>
+          
+          <div class="table-controls">
+            <!-- Search field -->
+            <div class="search-wrapper">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="bookings-search" class="form-input search-input" placeholder="Search guest name or table number...">
+            </div>
+            
+            <!-- Filters tab -->
+            <div class="filter-tabs" id="bookings-filter-tabs">
+              <div class="filter-tab active" data-filter="All">All</div>
+              <div class="filter-tab" data-filter="Active">Active</div>
+              <div class="filter-tab" data-filter="Completed">Completed</div>
+              <div class="filter-tab" data-filter="Cancelled">Cancelled</div>
+              <div class="filter-tab" data-filter="Archived">Archived</div>
+            </div>
+          </div>
+
+          <!-- Bookings Table -->
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Guest Name</th>
+                  <th>Type</th>
+                  <th>Room No.</th>
+                  <th>Table</th>
+                  <th>Date & Time</th>
+                  <th>Guests</th>
+                  <th>Dietary Pref.</th>
+                  <th>Payment</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookings-table-body">
+                <!-- Dynamically populated bookings -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination details -->
+          <div class="table-controls" style="margin-top: 20px; font-size: 0.85rem; color: var(--text-muted);">
+            <div id="bookings-pagination-text">Showing 0 of 0 bookings</div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn btn-secondary btn-icon" id="btn-prev-page" style="width:auto; padding:0 12px;">Prev</button>
+              <button class="btn btn-secondary btn-icon" id="btn-next-page" style="width:auto; padding:0 12px;">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. PLACE ORDER SCREEN -->
+      <div id="screen-order-entry" class="screen">
+        <div class="glass-card">
+          <div class="glass-card-title">Place Dining Order</div>
+          
+          <div style="display: flex; gap: 24px; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-glass); padding-bottom: 16px; flex-wrap: wrap;">
+            <div style="display: none !important;">
+              <span class="form-label">Order Destination</span>
+              <div style="display: flex; gap: 8px;">
+                <label class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; padding: 8px 16px; margin: 0; font-size: 0.85rem;" id="lbl-dest-table">
+                  <input type="radio" name="order-destination" value="table" checked style="display: none;" id="order-dest-table">
+                  <span>Table Dining</span>
+                </label>
+                <label class="btn btn-secondary" style="display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; padding: 8px 16px; margin: 0; font-size: 0.85rem;" id="lbl-dest-room">
+                  <input type="radio" name="order-destination" value="room" style="display: none;" id="order-dest-room">
+                  <span>Room Service</span>
+                </label>
+              </div>
+            </div>
+
+            <div id="order-entry-table-select-container" style="width: 220px;">
+              <label class="form-label" for="order-entry-table-select" style="margin-bottom: 6px;">Select Table Number</label>
+              <select id="order-entry-table-select" class="form-input">
+                <option value="">Select Table...</option>
+                <option value="1">Table 1 (2 seater)</option>
+                <option value="2">Table 2 (2 seater)</option>
+                <option value="3">Table 3 (2 seater)</option>
+                <option value="4">Table 4 (2 seater)</option>
+                <option value="5">Table 5 (4 seater)</option>
+                <option value="6">Table 6 (4 seater)</option>
+                <option value="7">Table 7 (4 seater)</option>
+                <option value="8">Table 8 (6 seater)</option>
+                <option value="9">Table 9 (6 seater)</option>
+                <option value="10">Table 10 (8 seater)</option>
+              </select>
+            </div>
+
+            <div id="order-entry-room-container" style="width: 220px; display: none;">
+              <label class="form-label" for="order-entry-room-input" style="margin-bottom: 6px;">Room Number</label>
+              <input type="text" id="order-entry-room-input" class="form-input" placeholder="e.g. 305">
+            </div>
+            
+            <div id="order-entry-table-info" style="flex-grow: 1; padding-top: 18px;">
+              <span style="color: var(--text-muted); font-size: 0.9rem;">Select a table to start placing orders.</span>
+            </div>
+          </div>
+          
+          <div class="billing-console-layout" id="order-entry-console-layout" style="display: none;">
+            <!-- Left Side: Menu List Selector -->
+            <div>
+              <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:12px;">Menu Catalog</h3>
+              <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:20px;">Click items to add to the table's order. Red borders flag items violating table guest dietary constraints.</p>
+              
+              <!-- Search & Advanced Filter Console -->
+              <div class="filter-panel-card no-print" style="margin-bottom: 20px;">
+                <div class="search-filter-row">
+                  <!-- Search field -->
+                  <div class="search-box">
+                    <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" id="admin-menu-search-input" placeholder="Search food items...">
+                  </div>
+
+                  <!-- Veg/Non-Veg filters group -->
+                  <div class="dietary-filter-group">
+                    <button class="filter-btn active" data-diet="ALL" id="admin-diet-btn-all">ALL</button>
+                    <button class="filter-btn" data-diet="VEG" id="admin-diet-btn-veg">
+                      <span class="dot-icon veg-dot"></span>VEG
+                    </button>
+                    <button class="filter-btn" data-diet="NON-VEG" id="admin-diet-btn-nonveg">
+                      <span class="dot-icon nonveg-dot"></span>NON-VEG
+                    </button>
+                  </div>
+
+                  <!-- Max Price Slider -->
+                  <div class="price-slider-group">
+                    <div class="price-label-row">
+                      <span class="price-label">Max Price</span>
+                      <span class="price-value" id="admin-max-price-display">₹500</span>
+                    </div>
+                    <input type="range" id="admin-menu-price-slider" min="0" max="500" value="500" step="10">
+                  </div>
+
+                  <!-- Sorting Dropdown -->
+                  <div class="sort-select-group">
+                    <select id="admin-menu-sort-select">
+                      <option value="name-asc">Alphabetical (A-Z)</option>
+                      <option value="name-desc">Alphabetical (Z-A)</option>
+                      <option value="price-asc">Price: Low to High</option>
+                      <option value="price-desc">Price: High to Low</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Category Filters Navigation -->
+              <nav class="categories-tabs" id="admin-category-tabs-container" style="margin-bottom: 20px;">
+                <div class="category-tab active" data-category="All">All Items</div>
+              </nav>
+
+              <div class="menu-list-grid" id="order-entry-menu-items">
+                <!-- Seeded menu items -->
+              </div>
+            </div>
+
+            <!-- Right Side: Ordered Items Summary Preview -->
+            <div class="glass-card" style="margin-bottom: 0; background: var(--bg-receipt);">
+              <div class="receipt-container">
+                <div class="receipt-header" style="border-bottom: 1px dashed var(--border-glass); padding-bottom: 12px; margin-bottom: 12px;">
+                  <h4 style="font-size: 1.1rem; font-weight: 600;">Table Current Orders</h4>
+                  <p style="font-size: 0.75rem; color: var(--text-muted); margin-top:4px;" id="order-entry-preview-meta">Table --</p>
+                  <div id="order-entry-dietary-warning" style="margin-top: 8px; display: none;">
+                    <!-- Alert box -->
+                  </div>
+                </div>
+
+                <!-- Preview Items List -->
+                <div class="receipt-items" id="order-entry-preview-list">
+                  <!-- Order items will append here -->
+                </div>
+
+                <!-- Quick Sum Summary -->
+                <div class="receipt-summary" style="border-top: 1px dashed var(--border-glass); padding-top: 12px;">
+                  <div class="receipt-row" style="font-weight: 700; color: var(--text-main); font-size: 1.05rem;">
+                    <span>Estimated Total</span>
+                    <span id="order-entry-preview-total">₹0.00</span>
+                  </div>
+                </div>
+
+                <!-- Kitchen Token (KOT) System -->
+                <div class="kitchen-token-section" style="border-top: 1px dashed var(--border-glass); padding-top: 12px; margin-top: 12px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Kitchen Order Ticket (KOT)</span>
+                    <button type="button" class="btn btn-outline" id="btn-print-kot" style="font-size: 0.75rem; padding: 4px 10px; border-radius: var(--radius-sm); border: 1.5px solid var(--primary); color: var(--primary); cursor: pointer; background: transparent; font-weight: 600; transition: var(--transition-smooth);" disabled>Print KOT</button>
+                  </div>
+                  <div id="kot-preview-list" style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                    No active KOT items.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. BILLING & HISTORY SCREEN -->
+      <div id="screen-billing" class="screen">
+        <div class="glass-card">
+          <div class="glass-card-title">Billing & History Console</div>
+          
+          <!-- Billing tabs -->
+          <div style="display: flex; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px;">
+            <button type="button" class="btn btn-primary" id="billing-tab-settle" style="padding: 8px 16px; font-size: 0.85rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; border: none;">Settle Bill</button>
+            <button type="button" class="btn btn-secondary" id="billing-tab-history" style="padding: 8px 16px; font-size: 0.85rem; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; border: none;">Settlement History</button>
+          </div>
+
+          <div id="billing-settle-container">
+            <div style="display: flex; gap: 20px; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-glass); padding-bottom: 16px;">
+              <div style="width: 220px;">
+                <label class="form-label" for="billing-table-select" style="margin-bottom: 6px;">Select Table</label>
+                <select id="billing-table-select" class="form-input">
+                  <option value="">Select Dining Session...</option>
+                </select>
+              </div>
+              
+              <div id="billing-table-info" style="flex-grow: 1; padding-top: 18px;">
+                <span style="color: var(--text-muted); font-size: 0.9rem;">Select a table or room to settle payment.</span>
+              </div>
+            </div>
+            
+            <div class="billing-console-layout" id="billing-console-layout" style="display: none;">
+              <!-- Left Side: Receipt Details -->
+              <div class="glass-card" style="margin-bottom: 0; background: var(--bg-receipt); grid-column: span 2;">
+                <div class="receipt-container" style="max-width: 600px; margin: 0 auto;">
+                  <div class="receipt-header">
+                    <h4 style="font-size: 1.25rem; font-weight: 700;" id="receipt-guest-name">Guest Receipt</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top:4px;" id="receipt-meta-info">Table 0 • Walk-in</p>
+                    <div id="receipt-dietary-warning" style="margin-top: 10px; display: none;">
+                      <!-- Alert box -->
+                    </div>
+                  </div>
+
+                  <!-- Receipt Items List -->
+                  <div class="receipt-items" id="receipt-items-list" style="max-height: 250px;">
+                    <!-- Order items will append here -->
+                  </div>
+
+                  <!-- Totals and checkout -->
+                  <div class="receipt-summary">
+                    <div class="receipt-row">
+                      <span>Subtotal</span>
+                      <span id="receipt-subtotal">₹0.00</span>
+                    </div>
+                    <div class="receipt-row" id="receipt-discount-row">
+                      <span>Hotel Guest Discount (10%)</span>
+                      <span id="receipt-discount">-₹0.00</span>
+                    </div>
+                    <div class="receipt-row">
+                      <span>GST (5%)</span>
+                      <span id="receipt-tax">₹0.00</span>
+                    </div>
+                    <div class="receipt-row total">
+                      <span>Total Amount</span>
+                      <span id="receipt-total">₹0.00</span>
+                    </div>
+                    
+                    <!-- Settle Billing Actions -->
+                    <div style="margin-top: 24px;" id="payment-actions-wrapper">
+                      <p style="font-size: 0.85rem; font-weight:700; color: var(--text-muted); margin-bottom:12px; text-align: center;">SETTLE PAYMENT METHOD</p>
+                      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom: 12px;">
+                        <button class="btn btn-secondary" onclick="recordPayment('Card')" style="justify-content: center; padding: 12px;">Credit/Debit Card</button>
+                        <button class="btn btn-secondary" onclick="recordPayment('Cash')" style="justify-content: center; padding: 12px;">Cash Payment</button>
+                        <button class="btn btn-secondary" onclick="recordPayment('UPI')" style="justify-content: center; padding: 12px;">UPI Payment</button>
+                        <button class="btn btn-primary" style="justify-content: center; padding: 12px;" id="btn-room-charge" onclick="recordPayment('Room Charge')">Charge to Hotel Room</button>
+                      </div>
+                    </div>
+                    <div id="receipt-paid-status" style="margin-top: 24px; display: none; text-align: center; font-weight:700; padding: 12px;" class="badge badge-completed">
+                      BILLING COMPLETED
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="billing-history-container" style="display: none;">
+            <!-- History Summary Stats Grid -->
+            <div class="summary-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 24px;">
+              <div class="metric-card glass-card" style="padding: 16px; margin-bottom: 0;">
+                <div class="metric-icon revenue" style="width: 38px; height: 38px; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 700;">₹</div>
+                <div class="metric-details">
+                  <p style="font-size: 0.8rem;">Today's Revenue</p>
+                  <div class="metric-value" id="history-stat-revenue" style="font-size: 1.2rem; margin-top: 2px;">₹0.00</div>
+                </div>
+              </div>
+              <div class="metric-card glass-card" style="padding: 16px; margin-bottom: 0;">
+                <div class="metric-icon occupancy" style="width: 38px; height: 38px; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 700;">#</div>
+                <div class="metric-details">
+                  <p style="font-size: 0.8rem;">Today's Transactions</p>
+                  <div class="metric-value" id="history-stat-transactions" style="font-size: 1.2rem; margin-top: 2px;">0</div>
+                </div>
+              </div>
+              <div class="metric-card glass-card" style="padding: 16px; margin-bottom: 0;">
+                <div class="metric-icon" style="width: 38px; height: 38px; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 700; background: rgba(245, 158, 11, 0.15); color: var(--warning); display: flex; align-items: center; justify-content: center;">$</div>
+                <div class="metric-details">
+                  <p style="font-size: 0.8rem;">Cash Payments</p>
+                  <div class="metric-value" id="history-stat-cash" style="font-size: 1.2rem; margin-top: 2px;">0</div>
+                </div>
+              </div>
+              <div class="metric-card glass-card" style="padding: 16px; margin-bottom: 0;">
+                <div class="metric-icon" style="width: 38px; height: 38px; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 700; background: rgba(2, 132, 199, 0.15); color: var(--secondary); display: flex; align-items: center; justify-content: center;">💳</div>
+                <div class="metric-details">
+                  <p style="font-size: 0.8rem;">Card Payments</p>
+                  <div class="metric-value" id="history-stat-card" style="font-size: 1.2rem; margin-top: 2px;">0</div>
+                </div>
+              </div>
+              <div class="metric-card glass-card" style="padding: 16px; margin-bottom: 0;">
+                <div class="metric-icon" style="width: 38px; height: 38px; border-radius: var(--radius-sm); font-size: 1.1rem; font-weight: 700; background: rgba(16, 185, 129, 0.15); color: var(--accent); display: flex; align-items: center; justify-content: center;">⚡</div>
+                <div class="metric-details">
+                  <p style="font-size: 0.8rem;">UPI Payments</p>
+                  <div class="metric-value" id="history-stat-upi" style="font-size: 1.2rem; margin-top: 2px;">0</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="data-table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Receipt No</th>
+                    <th>Guest Name</th>
+                    <th>Dining Session</th>
+                    <th>Date & Time</th>
+                    <th>Subtotal</th>
+                    <th>Discount (10%)</th>
+                    <th>GST (5%)</th>
+                    <th>Grand Total</th>
+                    <th>Payment Method</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="billing-history-table-body">
+                  <!-- Dynamically populated payment history -->
+                </tbody>
+              </table>
+            </div>
+
+
+
+          </div>
+        </div>
+      </div>
+
+
+      <!-- 5. DAILY REVENUE SCREEN -->
+      <div id="screen-reports" class="screen">
+        <!-- Date Selector Area -->
+        <div class="glass-card" style="margin-bottom: 24px; padding: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 4px; color: var(--text-main);">Daily Revenue Settle Panel</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">Query operational income split by payment mode for any chosen day.</p>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <label for="revenue-date-picker" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted);">Selected Date:</label>
+            <input type="date" id="revenue-date-picker" class="form-input" style="width: auto; padding: 8px 12px; margin: 0; background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-md); font-family: inherit; font-size: 0.9rem; color: var(--text-main);">
+          </div>
+        </div>
+
+        <!-- 4-Column Metric Grid -->
+        <div class="summary-grid" style="margin-bottom: 24px;">
+          <div class="glass-card metric-card" style="border-left: 4px solid var(--primary);">
+            <div class="metric-icon" style="background: rgba(200, 159, 30, 0.1); color: var(--primary);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="20"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Total Revenue</p>
+              <div class="metric-value" id="revenue-val-total">₹0.00</div>
+            </div>
+          </div>
+          <div class="glass-card metric-card" style="border-left: 4px solid #10b981;">
+            <div class="metric-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M12 10a3 3 0 0 0 0 6H10M14 8h-2a3 3 0 0 0 0 6"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>UPI Revenue</p>
+              <div class="metric-value" id="revenue-val-upi" style="color: #10b981;">₹0.00</div>
+            </div>
+          </div>
+          <div class="glass-card metric-card" style="border-left: 4px solid #f59e0b;">
+            <div class="metric-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Cash Revenue</p>
+              <div class="metric-value" id="revenue-val-cash" style="color: #f59e0b;">₹0.00</div>
+            </div>
+          </div>
+          <div class="glass-card metric-card" style="border-left: 4px solid #3b82f6;">
+            <div class="metric-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Other Revenue</p>
+              <div class="metric-value" id="revenue-val-others" style="color: #3b82f6;">₹0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Transactions List Table -->
+        <div class="glass-card" style="margin-bottom: 24px;">
+          <div class="glass-card-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-glass); padding-bottom: 12px; margin-bottom: 16px;">
+            <span>Settled Transactions Log</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary" onclick="exportBookingsCSV()" style="padding: 6px 12px; font-size: 0.8rem; font-weight: 500;">Export All Bookings</button>
+              <button class="btn btn-primary" onclick="exportRevenueReport()" style="padding: 6px 12px; font-size: 0.8rem; font-weight: 500;">Print Daily Report</button>
+            </div>
+          </div>
+          
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.9rem;" class="admin-table">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border-glass);">
+                  <th style="padding: 12px; font-weight: 600; color: var(--text-muted);">Receipt No</th>
+                  <th style="padding: 12px; font-weight: 600; color: var(--text-muted);">Guest Name</th>
+                  <th style="padding: 12px; font-weight: 600; color: var(--text-muted);">Table / Room</th>
+                  <th style="padding: 12px; font-weight: 600; color: var(--text-muted);">Time Settle</th>
+                  <th style="padding: 12px; font-weight: 600; color: var(--text-muted);">Payment Method</th>
+                  <th style="padding: 12px; font-weight: 600; color: var(--text-muted); text-align: right;">Amount</th>
+                </tr>
+              </thead>
+              <tbody id="revenue-transactions-table-body">
+                <!-- Dynamically populated via javascript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. ADMIN MANAGEMENT SCREEN -->
+      <div id="screen-admin-management" class="screen">
+        <!-- Stats Cards Grid -->
+        <div class="summary-grid" style="margin-bottom: 24px;">
+          <div class="glass-card metric-card">
+            <div class="metric-icon bookings" style="background: var(--primary-glow); color: var(--primary);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Total Admins</p>
+              <div class="metric-value" id="admin-stat-total">0</div>
+            </div>
+          </div>
+          <div class="glass-card metric-card">
+            <div class="metric-icon occupancy" style="background: rgba(16, 185, 129, 0.1); color: var(--accent);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Active Admins</p>
+              <div class="metric-value" id="admin-stat-active">0</div>
+            </div>
+          </div>
+          <div class="glass-card metric-card">
+            <div class="metric-icon revenue" style="background: rgba(59, 130, 246, 0.1); color: var(--secondary);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Super Admins</p>
+              <div class="metric-value" id="admin-stat-super">0</div>
+            </div>
+          </div>
+          <div class="glass-card metric-card">
+            <div class="metric-icon alerts" style="background: rgba(217, 119, 6, 0.1); color: var(--warning);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+            </div>
+            <div class="metric-details">
+              <p>Last Login Count</p>
+              <div class="metric-value" id="admin-stat-last-login">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="glass-card-title">Hotel Administrators List</div>
+          
+          <div class="table-controls" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
+            <!-- Left: Search and Filters -->
+            <div style="display: flex; gap: 12px; align-items: center; flex: 1; min-width: 300px; flex-wrap: wrap;">
+              <div class="search-wrapper" style="flex: 1; max-width: 350px;">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="admin-search-input" class="form-input search-input" placeholder="Search by name, username or email...">
+              </div>
+              
+              <select id="admin-filter-role" class="form-input" style="width: auto; height: 44px; padding: 0 16px; border-radius: var(--radius-md); background: var(--bg-input);">
+                <option value="All">All Roles</option>
+                <option value="Super Admin">Super Admin</option>
+                <option value="Admin">Admin</option>
+              </select>
+
+              <select id="admin-filter-status" class="form-input" style="width: auto; height: 44px; padding: 0 16px; border-radius: var(--radius-md); background: var(--bg-input);">
+                <option value="All">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+
+            <!-- Right: Action Button -->
+            <div>
+              <button class="btn btn-primary" id="btn-add-admin" style="height: 44px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Admin
+              </button>
+            </div>
+          </div>
+
+          <!-- Admins List Table -->
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Admin ID</th>
+                  <th>Full Name</th>
+                  <th>Email</th>
+                  <th>Username</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Last Login</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="admins-table-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="table-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid var(--border-glass); padding-top: 16px;">
+            <div id="admins-pagination-text" style="color: var(--text-muted); font-size: 0.9rem;">
+              Showing 0-0 of 0 admins
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary" id="btn-prev-admins-page" style="padding: 6px 12px; font-size: 0.85rem;">Prev</button>
+              <button class="btn btn-secondary" id="btn-next-admins-page" style="padding: 6px 12px; font-size: 0.85rem;">Next</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Administrator Login History Logs -->
+        <div class="glass-card" style="margin-top: 24px;">
+          <div class="glass-card-title">Administrator Login History Logs</div>
+          
+          <div class="table-controls" style="display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap;">
+            <!-- Left: Search -->
+            <div style="display: flex; gap: 12px; align-items: center; flex: 1; min-width: 300px; flex-wrap: wrap;">
+              <div class="search-wrapper" style="flex: 1; max-width: 350px;">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="logs-search-input" class="form-input search-input" placeholder="Search by username, IP, status, or device...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Logs List Table -->
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Log ID</th>
+                  <th>Date & Time</th>
+                  <th>Username</th>
+                  <th>Full Name</th>
+                  <th>IP Address</th>
+                  <th>Browser/Device</th>
+                  <th>Status</th>
+                  <th>Details/Reason</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination Controls -->
+          <div class="table-pagination" style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid var(--border-glass); padding-top: 16px;">
+            <div id="logs-pagination-text" style="color: var(--text-muted); font-size: 0.9rem;">
+              Showing 0-0 of 0 logs
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary" id="btn-prev-logs-page" style="padding: 6px 12px; font-size: 0.85rem;">Prev</button>
+              <button class="btn btn-secondary" id="btn-next-logs-page" style="padding: 6px 12px; font-size: 0.85rem;">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- MODAL: CREATE / EDIT RESERVATION -->
+  <div class="modal-overlay" id="modal-booking">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modal-booking-title">New Table Reservation</h2>
+        <button class="modal-close" id="modal-booking-close">&times;</button>
+      </div>
+      <form id="form-booking">
+        <input type="hidden" id="booking-id-field">
+        
+        <!-- Guest Details -->
+        <div class="form-group">
+          <label class="form-label" for="booking-guest-name">Guest Name</label>
+          <input type="text" id="booking-guest-name" class="form-input" placeholder="e.g. Rahul Sharma" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="booking-room-number">Room Number (Leave blank for Walk-in Diners)</label>
+          <input type="text" id="booking-room-number" class="form-input" placeholder="e.g. 305">
+        </div>
+
+        <!-- Booking Specs -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="booking-table-number">Table Allocation</label>
+            <select id="booking-table-number" class="form-input" required>
+              <option value="">Select Table...</option>
+              <option value="1">Table 1 (2 seater)</option>
+              <option value="2">Table 2 (2 seater)</option>
+              <option value="3">Table 3 (2 seater)</option>
+              <option value="4">Table 4 (2 seater)</option>
+              <option value="5">Table 5 (4 seater)</option>
+              <option value="6">Table 6 (4 seater)</option>
+              <option value="7">Table 7 (4 seater)</option>
+              <option value="8">Table 8 (6 seater)</option>
+              <option value="9">Table 9 (6 seater)</option>
+              <option value="10">Table 10 (8 seater)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="booking-guest-count">Diners Count</label>
+            <input type="number" id="booking-guest-count" class="form-input" min="1" max="8" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="booking-date">Date</label>
+            <input type="date" id="booking-date" class="form-input" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="booking-time">Arrival Time</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="time" id="booking-time" class="form-input" style="flex: 2;" required>
+              <select id="booking-time-ampm" class="form-input" style="flex: 1;" required>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="form-group" id="edit-status-group" style="display:none;">
+          <label class="form-label" for="booking-status">Booking Status</label>
+          <select id="booking-status" class="form-input">
+            <option value="Active">Active</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+            <option value="Archived">Archived</option>
+          </select>
+        </div>
+
+        <div id="booking-error-msg" style="color:var(--danger); font-size:0.85rem; margin-bottom:15px; font-weight:600; display:none;">
+          <!-- Error message placeholder -->
+        </div>
+
+        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:24px;">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Reservation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: BOOKING DETAIL VIEW -->
+  <div class="modal-overlay" id="modal-detail">
+    <div class="modal-content" style="max-width: 550px;">
+      <div class="modal-header">
+        <h2>Reservation Details</h2>
+        <button class="modal-close" id="modal-detail-close">&times;</button>
+      </div>
+      <div id="booking-detail-body">
+        <!-- Dynamically populated details -->
+      </div>
+      <div id="modal-detail-actions" style="display:flex; justify-content: flex-end; gap:12px; margin-top:32px; border-top:1px solid var(--border-glass); padding-top:20px;">
+        <button class="btn btn-secondary" onclick="printDetail()">Print Receipt</button>
+        <button class="btn btn-primary" id="btn-detail-manage-billing">Manage Orders & Pay</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DAILY REVENUE BREAKDOWN -->
+  <div class="modal-overlay" id="modal-revenue">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2>Daily Revenue History</h2>
+        <button class="modal-close" id="modal-revenue-close">&times;</button>
+      </div>
+      <div id="revenue-history-body" style="max-height: 450px; overflow-y: auto;">
+        <!-- Dynamically populated daily revenue list -->
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:32px; border-top:1px solid var(--border-glass); padding-top:20px;">
+        <button class="btn btn-secondary" id="btn-close-revenue-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ACTIVE BOOKINGS LIST -->
+  <div class="modal-overlay" id="modal-active-bookings">
+    <div class="modal-content" style="max-width: 600px;">
+      <div class="modal-header">
+        <h2>Currently Active Reservations</h2>
+        <button class="modal-close" id="modal-active-bookings-close">&times;</button>
+      </div>
+      <div id="active-bookings-body" style="max-height: 450px; overflow-y: auto;">
+        <!-- Dynamically populated active bookings list -->
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:32px; border-top:1px solid var(--border-glass); padding-top:20px;">
+        <button class="btn btn-secondary" id="btn-close-active-bookings-modal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT ADMINISTRATOR -->
+  <div class="modal-overlay" id="modal-admin">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 id="modal-admin-title">Add Administrator</h2>
+        <button class="modal-close" id="modal-admin-close">&times;</button>
+      </div>
+      <form id="form-admin">
+        <input type="hidden" id="admin-id-field">
+        
+        <!-- Full Name -->
+        <div class="form-group">
+          <label class="form-label" for="admin-full-name">Full Name</label>
+          <input type="text" id="admin-full-name" class="form-input" placeholder="e.g. Vikram Malhotra" required>
+        </div>
+
+        <!-- Email & Username -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="admin-email">Email Address</label>
+            <input type="email" id="admin-email" class="form-input" placeholder="e.g. vikram@auracafe.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="admin-username">Username</label>
+            <input type="text" id="admin-username" class="form-input" placeholder="e.g. vikram_m" required>
+          </div>
+        </div>
+
+        <!-- Passwords (Only required for add, hidden/disabled or empty during edit) -->
+        <div class="form-row" id="admin-password-row">
+          <div class="form-group">
+            <label class="form-label" for="admin-password">Password (min 8 chars)</label>
+            <input type="password" id="admin-password" class="form-input" placeholder="••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="admin-confirm-password">Confirm Password</label>
+            <input type="password" id="admin-confirm-password" class="form-input" placeholder="••••••••">
+          </div>
+        </div>
+
+        <!-- Role & Status -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="admin-role">Role</label>
+            <select id="admin-role" class="form-input" required>
+              <option value="Admin">Admin</option>
+              <option value="Super Admin">Super Admin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="admin-status">Status</label>
+            <select id="admin-status" class="form-input" required>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="admin-error-msg" style="color:var(--danger); font-size:0.85rem; margin-bottom:15px; font-weight:600; display:none;">
+          <!-- Error message placeholder -->
+        </div>
+
+        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:24px;">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-admin-modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: DELETE CONFIRMATION -->
+  <div class="modal-overlay" id="modal-delete-confirm">
+    <div class="modal-content" style="max-width: 420px; text-align: center; padding: 32px 24px;">
+      <div style="color: var(--danger); margin-bottom: 20px;">
+        <!-- Large Warning Icon -->
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="background: rgba(220, 38, 38, 0.1); padding: 12px; border-radius: 50%; display: inline-block;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--text-main); margin-bottom: 12px;">Delete Administrator Account?</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; margin-bottom: 28px;">
+        Are you sure you want to delete <strong id="delete-admin-name">this administrator</strong>? This action is permanent and cannot be undone.
+      </p>
+      <input type="hidden" id="delete-admin-id-field">
+      <div style="display: flex; gap: 12px; justify-content: center;">
+        <button class="btn btn-secondary" id="btn-cancel-delete-confirm" style="flex: 1;">Cancel</button>
+        <button class="btn btn-danger" id="btn-confirm-delete-admin" style="flex: 1; background: var(--danger); color: white;">Delete Account</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Admin Login Screen -->
+  <div class="login-screen-container theme-cartoon-bg" id="login-screen">
+    <!-- Fullscreen Resort Gallery Slideshow Background -->
+    <div class="login-gallery">
+      <div class="gallery-slide active" style="background-image: linear-gradient(135deg, rgba(10, 25, 47, 0.45), rgba(10, 25, 47, 0.6)), url('https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80');"></div>
+      <div class="gallery-slide" style="background-image: linear-gradient(135deg, rgba(10, 25, 47, 0.45), rgba(10, 25, 47, 0.6)), url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1600&q=80');"></div>
+      <div class="gallery-slide" style="background-image: linear-gradient(135deg, rgba(10, 25, 47, 0.45), rgba(10, 25, 47, 0.6)), url('https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1600&q=80');"></div>
+    </div>
+    
+    <!-- Dynamic Cartoon Food Floating Background -->
+    <div class="login-cartoon-bg">
+      <!-- 1. Burger -->
+      <div class="floating-cartoon-wrapper" style="left: 5%; top: 15%; --parallax-factor: 15;">
+        <div class="floating-cartoon" style="animation-duration: 22s; animation-delay: 0s;">
+          <svg viewBox="0 0 100 100">
+            <path d="M15,50 C15,25 85,25 85,50 Z" fill="#E29B3E" />
+            <path d="M12,50 L88,50 L80,58 L60,50 L40,58 L20,50 Z" fill="#F4D03F" />
+            <rect x="15" y="56" width="70" height="12" rx="6" fill="#784212" />
+            <path d="M15,66 C15,75 85,75 85,66 Z" fill="#E29B3E" />
+            <!-- Face -->
+            <circle cx="38" cy="45" r="3" class="cartoon-eye" fill="#000" />
+            <circle cx="62" cy="45" r="3" class="cartoon-eye" fill="#000" />
+            <circle cx="31" cy="48" r="2.5" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="69" cy="48" r="2.5" fill="#FF8D9C" opacity="0.8" />
+            <path d="M47,48 Q50,51 53,48" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 2. Pizza -->
+      <div class="floating-cartoon-wrapper" style="left: 12%; top: 70%; --parallax-factor: 30;">
+        <div class="floating-cartoon" style="animation-duration: 18s; animation-delay: 2s;">
+          <svg viewBox="0 0 100 100">
+            <path d="M50,15 L85,78 C85,78 50,90 15,78 Z" fill="#D35400" />
+            <path d="M50,25 L75,70 C75,70 50,80 25,70 Z" fill="#F4D03F" />
+            <circle cx="50" cy="42" r="5" fill="#C0392B" />
+            <circle cx="38" cy="58" r="4" fill="#C0392B" />
+            <circle cx="62" cy="58" r="4" fill="#C0392B" />
+            <!-- Face -->
+            <circle cx="43" cy="50" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="57" cy="50" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="38" cy="52" r="2" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="62" cy="52" r="2" fill="#FF8D9C" opacity="0.8" />
+            <path d="M48,53 Q50,55 52,53" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 3. Cupcake -->
+      <div class="floating-cartoon-wrapper" style="left: 80%; top: 15%; --parallax-factor: 25;">
+        <div class="floating-cartoon" style="animation-duration: 20s; animation-delay: 1s;">
+          <svg viewBox="0 0 100 100">
+            <path d="M25,55 L32,82 C32,82 50,86 68,82 L75,55 Z" fill="#BDC3C7" />
+            <path d="M20,55 C15,45 35,35 50,35 C65,35 85,45 80,55 Z" fill="#FF8D9C" />
+            <circle cx="50" cy="18" r="6" fill="#C0392B" />
+            <!-- Face -->
+            <circle cx="42" cy="46" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="58" cy="46" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="36" cy="48" r="2" fill="#FF8093" opacity="0.8" />
+            <circle cx="64" cy="48" r="2" fill="#FF8093" opacity="0.8" />
+            <path d="M48,49 Q50,51 52,49" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 4. Soda Cup -->
+      <div class="floating-cartoon-wrapper" style="left: 85%; top: 72%; --parallax-factor: 20;">
+        <div class="floating-cartoon" style="animation-duration: 24s; animation-delay: 3s;">
+          <svg viewBox="0 0 100 100">
+            <path d="M30,40 L70,40 L62,85 C61,88 58,90 55,90 H45 C42,90 39,88 38,85 Z" fill="#3498DB" />
+            <rect x="25" y="32" width="50" height="8" rx="3" fill="#ECF0F1" />
+            <path d="M50,32 L65,10" stroke="#E74C3C" stroke-width="5" stroke-linecap="round" />
+            <!-- Face -->
+            <circle cx="42" cy="55" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="58" cy="55" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="36" cy="57" r="2" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="64" cy="57" r="2" fill="#FF8D9C" opacity="0.8" />
+            <path d="M48,59 Q50,61 52,59" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 5. French Fries -->
+      <div class="floating-cartoon-wrapper" style="left: 45%; top: 8%; --parallax-factor: 15;">
+        <div class="floating-cartoon" style="animation-duration: 26s; animation-delay: 4s;">
+          <svg viewBox="0 0 100 100">
+            <path d="M30,30 L40,30 L40,80 L30,80 Z M45,20 L55,20 L55,80 L45,80 Z M60,28 L70,28 L70,80 L60,80 Z" fill="#F39C12" />
+            <path d="M25,50 H75 V80 C75,83 72,85 68,85 H32 C28,85 25,83 25,80 Z" fill="#E74C3C" />
+            <!-- Face -->
+            <circle cx="40" cy="68" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="60" cy="68" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="34" cy="70" r="2" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="66" cy="70" r="2" fill="#FF8D9C" opacity="0.8" />
+            <path d="M47,72 Q50,74 53,72" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 6. Popcorn -->
+      <div class="floating-cartoon-wrapper" style="left: 52%; top: 82%; --parallax-factor: 30;">
+        <div class="floating-cartoon" style="animation-duration: 21s; animation-delay: 5s;">
+          <svg viewBox="0 0 100 100">
+            <circle cx="40" cy="30" r="10" fill="#F1C40F" />
+            <circle cx="50" cy="25" r="12" fill="#F1C40F" />
+            <circle cx="62" cy="30" r="10" fill="#F1C40F" />
+            <path d="M30,42 H70 V80 C70,83 67,85 64,85 H36 C33,85 30,83 30,80 Z" fill="#E74C3C" />
+            <path d="M35,42 H65 V80 H35 Z" fill="#ECF0F1" />
+            <!-- Face -->
+            <circle cx="42" cy="58" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="58" cy="58" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="36" cy="60" r="2" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="64" cy="60" r="2" fill="#FF8D9C" opacity="0.8" />
+            <path d="M48,62 Q50,64 52,62" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 7. Ice Cream Cone -->
+      <div class="floating-cartoon-wrapper" style="left: 20%; top: 10%; --parallax-factor: 25;">
+        <div class="floating-cartoon" style="animation-duration: 23s; animation-delay: 1.5s;">
+          <svg viewBox="0 0 100 100">
+            <polygon points="35,50 65,50 50,85" fill="#E29B3E" />
+            <line x1="42" y1="50" x2="50" y2="85" stroke="#784212" stroke-width="1.5" />
+            <line x1="58" y1="50" x2="50" y2="85" stroke="#784212" stroke-width="1.5" />
+            <circle cx="50" cy="42" r="16" fill="#FF8D9C" />
+            <circle cx="42" cy="46" r="10" fill="#FF8D9C" />
+            <circle cx="58" cy="46" r="10" fill="#FF8D9C" />
+            <circle cx="50" cy="24" r="5" fill="#C0392B" />
+            <!-- Face -->
+            <circle cx="42" cy="42" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="58" cy="42" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="36" cy="44" r="2" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="64" cy="44" r="2" fill="#FF8D9C" opacity="0.8" />
+            <path d="M48,46 Q50,48 52,46" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 8. Donut -->
+      <div class="floating-cartoon-wrapper" style="left: 78%; top: 80%; --parallax-factor: 15;">
+        <div class="floating-cartoon" style="animation-duration: 19s; animation-delay: 2.5s;">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="28" fill="#E59866" />
+            <circle cx="50" cy="50" r="24" fill="#FF8093" />
+            <circle cx="50" cy="50" r="10" fill="#0b0f19" />
+            <rect x="42" y="34" width="6" height="2" rx="1" fill="#FFF" transform="rotate(30 42 34)" />
+            <rect x="58" y="36" width="6" height="2" rx="1" fill="#FFF" transform="rotate(-30 58 36)" />
+            <rect x="36" y="52" width="6" height="2" rx="1" fill="#FFF" />
+            <rect x="62" y="48" width="6" height="2" rx="1" fill="#FFF" transform="rotate(45 62 48)" />
+            <rect x="48" y="66" width="6" height="2" rx="1" fill="#FFF" transform="rotate(90 48 66)" />
+            <!-- Face -->
+            <circle cx="38" cy="48" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="62" cy="48" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="32" cy="50" r="2" fill="#FF8093" opacity="0.8" />
+            <circle cx="68" cy="50" r="2" fill="#FF8093" opacity="0.8" />
+            <path d="M48,51 Q50,53 52,51" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 9. Taco -->
+      <div class="floating-cartoon-wrapper" style="left: 92%; top: 40%; --parallax-factor: 25;">
+        <div class="floating-cartoon" style="animation-duration: 25s; animation-delay: 0.5s;">
+          <svg viewBox="0 0 100 100">
+            <path d="M20,60 C20,30 80,30 80,60 Z" fill="#F4D03F" />
+            <path d="M22,60 C28,52 34,62 40,55 C46,48 52,58 58,52 C64,45 70,55 76,60" fill="none" stroke="#2ECC71" stroke-width="6" stroke-linecap="round" />
+            <path d="M25,60 C32,56 38,62 45,58 C52,54 58,62 65,58" fill="none" stroke="#C0392B" stroke-width="5" stroke-linecap="round" />
+            <path d="M30,60 H70" fill="none" stroke="#784212" stroke-width="4" />
+            <!-- Face -->
+            <circle cx="42" cy="48" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="58" cy="48" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="36" cy="50" r="2" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="64" cy="50" r="2" fill="#FF8D9C" opacity="0.8" />
+            <path d="M48,52 Q50,54 52,52" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 10. Chicken Drumstick -->
+      <div class="floating-cartoon-wrapper" style="left: 4%; top: 45%; --parallax-factor: 20;">
+        <div class="floating-cartoon" style="animation-duration: 23s; animation-delay: 3.5s;">
+          <svg viewBox="0 0 100 100">
+            <rect x="46" y="55" width="8" height="25" rx="3" fill="#ECF0F1" />
+            <circle cx="44" cy="78" r="6" fill="#ECF0F1" />
+            <circle cx="56" cy="78" r="6" fill="#ECF0F1" />
+            <path d="M32,42 C32,25 68,25 68,42 C68,58 58,64 50,64 C42,64 32,58 32,42 Z" fill="#D35400" />
+            <!-- Face -->
+            <circle cx="43" cy="40" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="57" cy="40" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="37" cy="42" r="2" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="63" cy="42" r="2" fill="#FF8D9C" opacity="0.8" />
+            <path d="M48,44 Q50,46 52,44" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 11. Pineapple -->
+      <div class="floating-cartoon-wrapper" style="left: 33%; top: 90%; --parallax-factor: 30;">
+        <div class="floating-cartoon" style="animation-duration: 27s; animation-delay: 1s;">
+          <svg viewBox="0 0 100 100">
+            <path d="M50,15 Q40,35 50,45 Q60,35 50,15" fill="#2ECC71" />
+            <path d="M45,20 Q32,38 48,45" fill="#2ECC71" />
+            <path d="M55,20 Q68,38 52,45" fill="#2ECC71" />
+            <rect x="36" y="42" width="28" height="38" rx="14" fill="#F4D03F" />
+            <line x1="42" y1="46" x2="58" y2="76" stroke="#D35400" stroke-width="1.5" />
+            <line x1="58" y1="46" x2="42" y2="76" stroke="#D35400" stroke-width="1.5" />
+            <!-- Face -->
+            <circle cx="43" cy="55" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="57" cy="55" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="37" cy="57" r="2" fill="#D35400" opacity="0.8" />
+            <circle cx="63" cy="57" r="2" fill="#D35400" opacity="0.8" />
+            <path d="M48,59 Q50,61 52,59" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <!-- 12. Coffee Mug -->
+      <div class="floating-cartoon-wrapper" style="left: 65%; top: 10%; --parallax-factor: 15;">
+        <div class="floating-cartoon" style="animation-duration: 17s; animation-delay: 4.5s;">
+          <svg viewBox="0 0 100 100">
+            <path d="M60,45 C75,45 75,65 60,65" fill="none" stroke="#E67E22" stroke-width="6" stroke-linecap="round" />
+            <rect x="30" y="35" width="32" height="40" rx="3" fill="#E67E22" />
+            <path d="M36,28 Q39,22 36,16" fill="none" stroke="#BDC3C7" stroke-width="2" stroke-linecap="round" />
+            <path d="M46,28 Q49,22 46,16" fill="none" stroke="#BDC3C7" stroke-width="2" stroke-linecap="round" />
+            <!-- Face -->
+            <circle cx="40" cy="52" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="52" cy="52" r="2.5" class="cartoon-eye" fill="#000" />
+            <circle cx="35" cy="54" r="2" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="57" cy="54" r="2" fill="#FF8D9C" opacity="0.8" />
+            <path d="M44,56 Q46,58 48,56" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Centered Glassmorphic Admin Login Card -->
+    <div class="login-card glass-card" style="max-width: 420px; width: 90%; padding: 32px; z-index: 10; position: relative; margin: auto;">
+      <div class="brand" style="border-bottom: none; justify-content: center; margin-bottom: 24px; padding: 0;">
+        <img src="images/logo.png" alt="Aura Cafe Logo" style="height: 72px; object-fit: contain;">
+      </div>
+      <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 28px;">Authenticate to access the hotel reservation portal.</p>
+      
+      <form id="form-login">
+        <div class="form-group">
+          <label class="form-label" for="login-username">Username</label>
+          <input type="text" id="login-username" class="form-input" placeholder="e.g. admin" required autocomplete="username">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="login-keycode">Password</label>
+          <div style="position: relative; display: flex; align-items: center;">
+            <input type="text" id="login-keycode" class="form-input password-masked" placeholder="e.g. admin123" required autocomplete="off" style="padding-right: 44px;">
+            <button type="button" id="btn-toggle-password" style="position: absolute; right: 14px; background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="password-eye-icon"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        
+        <div id="login-error-msg" style="color:var(--danger); font-size:0.85rem; margin-bottom:15px; font-weight:600; text-align:center; display:none;">
+          <!-- Error message placeholder -->
+        </div>
+        
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 0.95rem; margin-top: 10px;">
+          Access Dashboard
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CHANGE PASSWORD -->
+  <div class="modal-overlay" id="modal-change-password">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <h2>Change Admin Password</h2>
+        <button class="modal-close" id="modal-change-password-close">&times;</button>
+      </div>
+      <form id="form-change-password">
+        <div class="form-group">
+          <label class="form-label" for="change-current-keycode">Current Password</label>
+          <input type="text" id="change-current-keycode" class="form-input password-masked" placeholder="Enter current password" required autocomplete="off">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="change-new-keycode">New Password</label>
+          <input type="text" id="change-new-keycode" class="form-input password-masked" placeholder="Enter new password" minlength="6" required autocomplete="off">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="change-confirm-keycode">Confirm New Password</label>
+          <input type="text" id="change-confirm-keycode" class="form-input password-masked" placeholder="Re-type new password" minlength="6" required autocomplete="off">
+        </div>
+        
+        <div id="change-password-error-msg" style="color:var(--danger); font-size:0.85rem; margin-bottom:15px; font-weight:600; text-align:center; display:none;">
+          <!-- Error message placeholder -->
+        </div>
+        
+        <div id="change-password-success-msg" style="color:var(--accent); font-size:0.85rem; margin-bottom:15px; font-weight:600; text-align:center; display:none;">
+          Password changed successfully!
+        </div>
+        
+        <div style="display:flex; justify-content: flex-end; gap:12px; margin-top:24px; border-top:1px solid var(--border-glass); padding-top:20px;">
+          <button type="button" class="btn btn-secondary" id="btn-cancel-change-password">Cancel</button>
+          <button type="submit" class="btn btn-primary">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Welcome Overlay -->
+  <div id="welcome-overlay" class="welcome-overlay">
+    <!-- Floating background food icons -->
+    <div class="floating-bg-food" style="left: 8%; animation-duration: 11s; animation-delay: 0s;">
+      <svg viewBox="0 0 100 100"><path d="M30,30 L40,30 L40,80 L30,80 Z M45,20 L55,20 L55,80 L45,80 Z M60,28 L70,28 L70,80 L60,80 Z" fill="#F39C12" /><path d="M25,50 H75 V80 C75,83 72,85 68,85 H32 C28,85 25,83 25,80 Z" fill="#E74C3C" /></svg>
+    </div>
+    <div class="floating-bg-food" style="left: 28%; animation-duration: 14s; animation-delay: 3s;">
+      <svg viewBox="0 0 100 100"><path d="M30,40 L70,40 L62,85 C61,88 58,90 55,90 H45 C42,90 39,88 38,85 Z" fill="#3498DB" /><rect x="25" y="32" width="50" height="8" rx="3" fill="#ECF0F1" /><path d="M50,32 L65,10" stroke="#E74C3C" stroke-width="5" stroke-linecap="round" /></svg>
+    </div>
+    <div class="floating-bg-food" style="left: 55%; animation-duration: 12s; animation-delay: 1.5s;">
+      <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="32" fill="#E29B3E" /><circle cx="50" cy="50" r="27" fill="#E74C3C" /><circle cx="50" cy="50" r="10" fill="#0b0f19" /><circle cx="35" cy="40" r="4" fill="#F1C40F" /><circle cx="60" cy="38" r="3" fill="#F1C40F" /><circle cx="42" cy="62" r="3.5" fill="#F1C40F" /><circle cx="58" cy="58" r="4" fill="#F1C40F" /></svg>
+    </div>
+    <div class="floating-bg-food" style="left: 82%; animation-duration: 16s; animation-delay: 5s;">
+      <svg viewBox="0 0 100 100"><circle cx="40" cy="30" r="10" fill="#F1C40F" /><circle cx="50" cy="25" r="12" fill="#F1C40F" /><circle cx="62" cy="30" r="10" fill="#F1C40F" /><path d="M30,42 H70 V80 C70,83 67,85 64,85 H36 C33,85 30,83 30,80 Z" fill="#E74C3C" /><path d="M35,42 H65 V80 H35 Z" fill="#ECF0F1" /></svg>
+    </div>
+
+    <div class="welcome-content">
+      <div class="welcome-food-stage">
+        <!-- Bouncing Burger -->
+        <div class="animated-food-item burger">
+          <svg viewBox="0 0 100 100">
+            <path d="M15,50 C15,25 85,25 85,50 Z" fill="#E29B3E" />
+            <ellipse cx="35" cy="35" rx="1.5" ry="3" fill="#FFF" transform="rotate(30 35 35)" />
+            <ellipse cx="50" cy="32" rx="1.5" ry="3" fill="#FFF" />
+            <ellipse cx="65" cy="37" rx="1.5" ry="3" fill="#FFF" transform="rotate(-30 65 37)" />
+            <path d="M12,50 L88,50 L80,58 L60,50 L40,58 L20,50 Z" fill="#F4D03F" />
+            <rect x="15" y="56" width="70" height="12" rx="6" fill="#784212" />
+            <path d="M10,50 C15,48 20,54 25,50 C30,48 35,54 40,50 C45,48 50,54 55,50 C60,48 65,54 70,50 C75,48 80,54 85,50 C90,48 91,51 92,50" fill="#2ECC71" stroke="#2ECC71" stroke-width="2" stroke-linecap="round" />
+            <path d="M15,66 C15,75 85,75 85,66 Z" fill="#E29B3E" />
+            <circle cx="38" cy="45" r="3.5" fill="#000" />
+            <circle cx="37" cy="43.5" r="1" fill="#FFF" />
+            <circle cx="62" cy="45" r="3.5" fill="#000" />
+            <circle cx="61" cy="43.5" r="1" fill="#FFF" />
+            <circle cx="31" cy="48" r="3" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="69" cy="48" r="3" fill="#FF8D9C" opacity="0.8" />
+            <path d="M47,48 Q50,51 53,48" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </div>
+
+        <!-- Bouncing Pizza -->
+        <div class="animated-food-item pizza">
+          <svg viewBox="0 0 100 100">
+            <path d="M50,15 L85,78 C85,78 50,90 15,78 Z" fill="#D35400" />
+            <path d="M50,20 L80,74 C80,74 50,85 20,74 Z" fill="#E59866" />
+            <path d="M50,25 L75,70 C75,70 50,80 25,70 Z" fill="#F4D03F" />
+            <circle cx="50" cy="42" r="5" fill="#C0392B" />
+            <circle cx="38" cy="58" r="4" fill="#C0392B" />
+            <circle cx="62" cy="58" r="4" fill="#C0392B" />
+            <circle cx="43" cy="50" r="3" fill="#000" />
+            <circle cx="57" cy="50" r="3" fill="#000" />
+            <circle cx="38" cy="52" r="2.5" fill="#FF8D9C" opacity="0.8" />
+            <circle cx="62" cy="52" r="2.5" fill="#FF8D9C" opacity="0.8" />
+            <path d="M48,53 Q50,55 52,53" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+
+        <!-- Bouncing Cupcake -->
+        <div class="animated-food-item cupcake">
+          <svg viewBox="0 0 100 100">
+            <path d="M25,55 L32,82 C32,82 50,86 68,82 L75,55 Z" fill="#BDC3C7" />
+            <line x1="35" y1="56" x2="40" y2="82" stroke="#7F8C8D" stroke-width="2" />
+            <line x1="50" y1="56" x2="50" y2="84" stroke="#7F8C8D" stroke-width="2" />
+            <line x1="65" y1="56" x2="60" y2="82" stroke="#7F8C8D" stroke-width="2" />
+            <path d="M20,55 C15,45 35,35 50,35 C65,35 85,45 80,55 C75,60 25,60 20,55 Z" fill="#FF8D9C" />
+            <path d="M30,42 C25,32 40,25 50,25 C60,25 75,32 70,42 C65,46 35,46 30,42 Z" fill="#FFB7C5" />
+            <circle cx="50" cy="18" r="6" fill="#C0392B" />
+            <path d="M50,12 Q58,6 64,10" fill="none" stroke="#78281F" stroke-width="1.5" stroke-linecap="round" />
+            <circle cx="42" cy="46" r="3" fill="#000" />
+            <circle cx="58" cy="46" r="3" fill="#000" />
+            <circle cx="36" cy="48" r="2.5" fill="#FF8093" opacity="0.8" />
+            <circle cx="64" cy="48" r="2.5" fill="#FF8093" opacity="0.8" />
+            <path d="M48,49 Q50,51 52,49" fill="none" stroke="#000" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </div>
+      </div>
+      <h1 class="welcome-title" id="welcome-overlay-title">Welcome to Aura Cafe</h1>
+      <p class="welcome-subtitle" id="welcome-overlay-subtitle">Preparing your dashboard...</p>
+    </div>
+  </div>
+
+  <!-- Client-side Logic Script -->
+  <script src="app.js?v=16"></script>
+</body>
+</html>

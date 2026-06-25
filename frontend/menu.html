@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Dining Menu - Aura Cafe</title>
+  <link rel="stylesheet" href="menu-style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Header Greeting Panel -->
+    <header class="header-card">
+      <div class="brand-section">
+        <div class="brand-logo-container" style="display: flex; align-items: center; gap: 12px;">
+          <img src="images/logo.png" alt="Aura Cafe Logo" style="height: 48px; object-fit: contain;">
+        </div>
+
+        <!-- Header Links Navigation -->
+        <nav class="header-nav no-print" style="display: flex; gap: 20px; align-items: center;">
+          <a href="#" class="nav-link">Home</a>
+          <a href="#" class="nav-link active">Menu</a>
+          <a href="#" class="nav-link">Gallery</a>
+          <a href="#" class="nav-link">Reviews</a>
+          <a href="#" class="nav-link">Contact</a>
+        </nav>
+
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <button class="menu-theme-btn" id="theme-toggle" title="Toggle Theme">
+            <svg id="theme-toggle-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+          <a href="booking-portal.html" class="btn btn-outline btn-book-table no-print" style="text-decoration: none;">Book Table</a>
+          <span class="table-badge" id="display-table-num">Table --</span>
+        </div>
+      </div>
+      
+      <div id="greeting-wrapper">
+        <div class="welcome-msg" id="guest-greeting">Welcome to Aura Dining</div>
+        <div class="dietary-tagline" id="guest-dietary-desc">Choose from our curated beachfront items below.</div>
+      </div>
+
+      <!-- Live Order Tracker Toggle Button -->
+      <button class="tracker-tab-btn" id="btn-open-tracker">
+        📋 View Ordered Items Status
+      </button>
+    </header>
+
+    <!-- Dietary Restriction Banner Alert -->
+    <div class="alert-banner" id="dietary-alert-banner" style="display: none; margin-bottom: 24px;">
+      <span>⚠</span>
+      <span id="dietary-alert-message">Notice: Any non-compliant dishes will be flagged automatically.</span>
+    </div>
+
+    <!-- Search & Advanced Filter Console -->
+    <div class="filter-panel-card no-print">
+      <div class="search-filter-row">
+        <!-- Search field -->
+        <div class="search-box">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="menu-search-input" placeholder="Search food items...">
+        </div>
+
+        <!-- Veg/Non-Veg filters group -->
+        <div class="dietary-filter-group">
+          <button class="filter-btn active" data-diet="ALL">ALL</button>
+          <button class="filter-btn" data-diet="VEG">
+            <span class="dot-icon veg-dot"></span>VEG
+          </button>
+          <button class="filter-btn" data-diet="NON-VEG">
+            <span class="dot-icon nonveg-dot"></span>NON-VEG
+          </button>
+        </div>
+
+        <!-- Max Price Slider -->
+        <div class="price-slider-group">
+          <div class="price-label-row">
+            <span class="price-label">Max Price</span>
+            <span class="price-value" id="max-price-display">₹500</span>
+          </div>
+          <input type="range" id="menu-price-slider" min="0" max="500" value="500" step="10">
+        </div>
+
+        <!-- Sorting Dropdown -->
+        <div class="sort-select-group">
+          <select id="menu-sort-select">
+            <option value="name-asc">Alphabetical (A-Z)</option>
+            <option value="name-desc">Alphabetical (Z-A)</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Filters Navigation -->
+    <nav class="categories-tabs" id="category-tabs-container">
+      <div class="category-tab active" data-category="All">All Items</div>
+    </nav>
+
+    <!-- Menu Items Grid -->
+    <main class="menu-grid" id="menu-grid-container">
+      <!-- Dynamically rendered menu cards -->
+      <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+        Loading menu catalog...
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Floating Bottom Cart Trigger -->
+  <div class="bottom-cart-bar" id="floating-cart-bar" style="display: none;">
+    <div class="cart-bar-left">
+      <div class="cart-bar-icon-box">
+        🛒
+        <span class="cart-bar-badge" id="cart-item-count">0</span>
+      </div>
+      <div class="cart-bar-total" id="cart-bar-total">₹0.00</div>
+    </div>
+    <div class="cart-bar-right">
+      <span>View Cart</span>
+      <span>→</span>
+    </div>
+  </div>
+
+  <!-- Cart slide-out Drawer Modal -->
+  <div class="cart-drawer" id="cart-drawer-modal">
+    <div class="drawer-header">
+      <h2>Your Order Cart</h2>
+      <button class="btn-close-drawer" id="btn-close-cart">&times;</button>
+    </div>
+    
+    <div class="drawer-body" id="cart-items-body">
+      <!-- Selected items list -->
+    </div>
+    
+    <div class="drawer-footer">
+      <div class="summary-row">
+        <span>Subtotal</span>
+        <span id="cart-subtotal">₹0.00</span>
+      </div>
+      <div class="summary-row" id="cart-discount-row" style="display: none;">
+        <span>Hotel Guest Discount (10%)</span>
+        <span id="cart-discount">-₹0.00</span>
+      </div>
+      <div class="summary-row">
+        <span>GST (5%)</span>
+        <span id="cart-tax">₹0.00</span>
+      </div>
+      <div class="summary-row total">
+        <span>Grand Total</span>
+        <span id="cart-total">₹0.00</span>
+      </div>
+      
+      <button class="btn-place-order" id="btn-submit-order">
+        Send Order to Kitchen
+      </button>
+    </div>
+  </div>
+
+  <!-- Live Status Tracker Drawer -->
+  <div class="cart-drawer" id="tracker-drawer-modal">
+    <div class="drawer-header">
+      <h2>Live Orders</h2>
+      <button class="btn-close-drawer" id="btn-close-tracker">&times;</button>
+    </div>
+    
+    <div class="drawer-body" id="tracker-items-body" style="gap: 12px;">
+      <!-- Active orders list with live status -->
+    </div>
+  </div>
+
+  <!-- Table/Room Selection Overlay Modal -->
+  <div class="selection-overlay" id="table-selection-modal">
+    <div class="selection-content" style="max-width: 420px;">
+      <h3>Select Table Number</h3>
+      <p style="margin-bottom: 16px;">Please select your dining table number to browse the menu and start placing orders.</p>
+      
+      <!-- Toggle buttons - Hidden to remove Room Service option -->
+      <div style="display: none !important; gap: 10px; margin-bottom: 20px; justify-content: center;">
+        <button type="button" class="btn-confirm-table" id="menu-type-dinein" style="flex: 1; border-radius: var(--radius-md); padding: 10px; font-size: 0.9rem;">Dine-in Table</button>
+        <button type="button" class="btn-confirm-table" id="menu-type-room" style="flex: 1; border-radius: var(--radius-md); padding: 10px; font-size: 0.9rem; background: transparent; border: 1px solid var(--border-glass); color: var(--text-main); display: none !important;">Room Service</button>
+      </div>
+
+      <div id="menu-dinein-container">
+        <p>Please select your dining table number to browse the menu and start placing orders.</p>
+        <div class="table-select-grid" style="margin-bottom: 20px;">
+          <div class="table-btn" data-table="1">1</div>
+          <div class="table-btn" data-table="2">2</div>
+          <div class="table-btn" data-table="3">3</div>
+          <div class="table-btn" data-table="4">4</div>
+          <div class="table-btn" data-table="5">5</div>
+          <div class="table-btn" data-table="6">6</div>
+          <div class="table-btn" data-table="7">7</div>
+          <div class="table-btn" data-table="8">8</div>
+          <div class="table-btn" data-table="9">9</div>
+          <div class="table-btn" data-table="10">10</div>
+        </div>
+      </div>
+
+      <div id="menu-room-container" style="display: none; text-align: center; margin-bottom: 20px;">
+        <p>Please enter your hotel room number to place orders directly to your room.</p>
+        <input type="text" id="menu-room-input" class="form-input" placeholder="e.g. 305" style="width: 80%; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-glass); background: rgba(255, 255, 255, 0.05); color: var(--text-main); text-align: center; font-size: 1.2rem; font-weight: 600; margin-top: 10px; outline: none;">
+      </div>
+      
+      <button class="btn-confirm-table" id="btn-confirm-table" disabled>
+        Confirm Selection
+      </button>
+    </div>
+  </div>
+
+  <!-- Success Ordering Overlay -->
+  <div class="success-overlay" id="order-success-modal">
+    <div class="success-content">
+      <div class="success-icon-box">
+        <svg fill="none" viewBox="0 0 24 24">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="22 4 12 14.01 9 11.01" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h3>Order Placed Successfully!</h3>
+      <p>Your items have been sent to the kitchen. Chef will start preparing your order right away.</p>
+      <button class="btn-confirm-table" id="btn-close-success" style="width: 120px; padding: 10px;">
+        Okay
+      </button>
+    </div>
+  </div>
+
+  <script src="menu.js?v=3"></script>
+</body>
+</html>

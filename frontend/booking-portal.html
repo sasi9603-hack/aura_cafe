@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Cafe — Table Self-Booking Portal</title>
+  <!-- Google Fonts Outfit -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Razorpay Checkout SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    body {
+      background: var(--bg-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      font-family: var(--font-primary);
+      color: var(--text-main);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient background glows matching index.html */
+    .glow-sphere {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      filter: blur(150px);
+      z-index: -1;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .glow-1 {
+      top: -10%;
+      left: -10%;
+      background: var(--radial-glow-1);
+    }
+    .glow-2 {
+      bottom: -10%;
+      right: -10%;
+      background: var(--radial-glow-2);
+    }
+
+    .portal-container {
+      width: 100%;
+      max-width: 900px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-premium);
+      padding: 30px;
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .portal-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .portal-header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      background: var(--text-brand-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0;
+    }
+
+    .portal-header p {
+      color: var(--text-muted);
+      margin-top: 5px;
+      font-size: 1rem;
+    }
+
+    .portal-section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Dual columns for desktop */
+    .portal-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+    @media (min-width: 768px) {
+      .portal-grid {
+        grid-template-columns: 1.2fr 1fr;
+      }
+    }
+
+    .form-group-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text-muted);
+    }
+
+    .form-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      font-family: var(--font-primary);
+      transition: var(--transition-smooth);
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-glow);
+    }
+
+    /* Checkbox Group */
+    .dietary-checkboxes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      background: rgba(13, 148, 136, 0.03);
+      padding: 10px;
+      border: 1px dashed var(--border-glass);
+      border-radius: var(--radius-md);
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    .checkbox-label input {
+      accent-color: var(--primary);
+      width: 15px;
+      height: 15px;
+    }
+
+    /* Live table grid view */
+    .table-selection-panel {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .availability-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 12px;
+      margin-bottom: 15px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .table-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .table-card:hover:not(.occupied) {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .table-card.occupied {
+      background: rgba(148, 163, 184, 0.15);
+      border-color: var(--border-glass);
+      color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .table-card.selected {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+
+    .table-card .table-num {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .table-card .table-seats {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .table-status-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 12px;
+      margin-top: 6px;
+    }
+
+    .table-card.occupied .table-status-label {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .table-card:not(.occupied) .table-status-label {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background: #0b7a70;
+      box-shadow: var(--shadow-premium);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Confirmation card design */
+    .confirmation-view {
+      display: none;
+      text-align: center;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .success-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 20px auto;
+      font-size: 2rem;
+    }
+
+    .details-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      max-width: 450px;
+      margin: 20px auto;
+      text-align: left;
+    }
+
+    .details-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border-glass);
+    }
+
+    .details-row:last-child {
+      border-bottom: none;
+    }
+
+    .details-label {
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .details-val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .qr-container {
+      margin: 25px auto;
+      display: inline-block;
+      background: white;
+      padding: 10px;
+      border-radius: var(--radius-md);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .qr-container img {
+      display: block;
+      width: 160px;
+      height: 160px;
+    }
+
+    /* Loader animations */
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-top: 3px solid #ffffff;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-sphere glow-1"></div>
+  <div class="glow-sphere glow-2"></div>
+
+  <div class="portal-container">
+    
+    <!-- 1. Booking & Selection Form View -->
+    <div id="booking-form-view">
+      <div class="portal-header">
+        <img src="images/logo.png" alt="Aura Cafe Logo" style="height: 76px; object-fit: contain; margin-bottom: 8px;">
+        <p>Premium Oceanside Table Self-Booking</p>
+      </div>
+
+      <form id="booking-portal-form" onsubmit="handleFormSubmit(event)">
+        <div class="portal-grid">
+          
+          <!-- Left: Guest Details Form -->
+          <div>
+            <div class="portal-section-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+              Guest & Schedule Details
+            </div>
+
+            <div class="form-group">
+              <label for="guest_name">Full Name</label>
+              <input type="text" id="guest_name" class="form-input" required placeholder="John Doe">
+            </div>
+
+            <div class="form-group-row">
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tel" id="phone" class="form-input" required placeholder="e.g. 9876543210">
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" class="form-input" required placeholder="john@example.com">
+              </div>
+            </div>
+
+            <div class="form-group-row">
+              <div class="form-group">
+                <label for="booking_date">Date</label>
+                <input type="date" id="booking_date" class="form-input" required onchange="fetchTableAvailability()">
+              </div>
+              <div class="form-group">
+                <label for="time_slot">Time Slot</label>
+                <select id="time_slot" class="form-input" required onchange="fetchTableAvailability()">
+                  <option value="Breakfast">Breakfast (7am – 10am)</option>
+                  <option value="Lunch" selected>Lunch (12pm – 3pm)</option>
+                  <option value="Dinner">Dinner (7pm – 10pm)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group-row">
+              <div class="form-group">
+                <label for="guest_count">Party Size</label>
+                <input type="number" id="guest_count" class="form-input" required min="1" max="8" value="2" oninput="handlePartySizeChange()">
+              </div>
+              <div class="form-group">
+                <label for="room_number">Room Number (Optional)</label>
+                <input type="text" id="room_number" class="form-input" placeholder="e.g. 305 (Hotel Guests)">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Dietary Preferences</label>
+              <div class="dietary-checkboxes">
+                <label class="checkbox-label"><input type="checkbox" name="dietary" value="Vegetarian"> Vegetarian</label>
+                <label class="checkbox-label"><input type="checkbox" name="dietary" value="Vegan"> Vegan</label>
+                <label class="checkbox-label"><input type="checkbox" name="dietary" value="Gluten-Free"> Gluten-Free</label>
+                <label class="checkbox-label"><input type="checkbox" name="dietary" value="Nut-Allergy"> Nut Allergy</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Live Table Grid Selector -->
+          <div class="table-selection-panel">
+            <div class="portal-section-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
+              Select an Available Table
+            </div>
+            
+            <input type="hidden" id="selected_table" required>
+
+            <div id="availability-grid" class="availability-grid">
+              <!-- Rendered Dynamically -->
+            </div>
+
+            <button type="submit" id="btn-submit-booking" class="btn-submit" disabled>
+              Confirm Booking & Proceed to Payment
+            </button>
+          </div>
+
+        </div>
+      </form>
+    </div>
+
+    <!-- 2. Payment Loading/Verification Screen -->
+    <div id="payment-processing-view" style="display: none; text-align: center; padding: 40px 20px;">
+      <div class="spinner" style="width: 50px; height: 50px; border-width: 5px; margin: 0 auto 20px auto; border-top-color: var(--primary);"></div>
+      <h3 style="margin-bottom: 10px;">Awaiting Payment...</h3>
+      <p style="color: var(--text-muted); margin-bottom: 25px;">Please complete the payment in the Razorpay checkout overlay.</p>
+      <button onclick="retryPaymentCreation()" class="btn-submit" style="display: inline-flex; width: auto; background: var(--secondary);">
+        Retry Launching Payment Window
+      </button>
+    </div>
+
+    <!-- 3. Confirmation Screen View -->
+    <div id="confirmation-view" class="confirmation-view">
+      <div class="success-icon">✓</div>
+      <h2 style="font-weight: 700; color: var(--accent); margin-bottom: 5px;">Payment Confirmed!</h2>
+      <p style="color: var(--text-muted); font-size: 1rem;">Your table booking at Aura Cafe is finalized.</p>
+
+      <div class="details-card">
+        <div class="details-row">
+          <span class="details-label">Booking ID</span>
+          <span id="conf-booking-id" class="details-val">-</span>
+        </div>
+        <div class="details-row">
+          <span class="details-label">Guest Name</span>
+          <span id="conf-guest-name" class="details-val">-</span>
+        </div>
+        <div class="details-row">
+          <span class="details-label">Date & Slot</span>
+          <span id="conf-datetime" class="details-val">-</span>
+        </div>
+        <div class="details-row">
+          <span class="details-label">Table Number</span>
+          <span id="conf-table" class="details-val" style="color: var(--primary);">-</span>
+        </div>
+        <div class="details-row">
+          <span class="details-label">Payment Transaction ID</span>
+          <span id="conf-transaction-id" class="details-val">-</span>
+        </div>
+        <div class="details-row">
+          <span class="details-label">Payment Status</span>
+          <span class="details-val" style="color: var(--accent); background: rgba(16, 185, 129, 0.15); padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">PAID</span>
+        </div>
+      </div>
+
+      <div class="qr-container">
+        <img id="conf-qr-code" src="" alt="Booking QR Code">
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; font-weight: 600;">Scan QR to verify details</p>
+      </div>
+
+      <div style="margin-top: 20px;">
+        <button onclick="resetBookingPortal()" class="btn-submit" style="width: auto; display: inline-flex; background: var(--primary);">
+          Make Another Booking
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let pendingBookingId = null;
+
+    // Load active Theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Initialize Date input value to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('booking_date').value = tomorrow.toISOString().split('T')[0];
+
+    // Boot availability map
+    fetchTableAvailability();
+
+    /**
+     * Handles changes to party size and auto-hides smaller tables
+     */
+    function handlePartySizeChange() {
+      const guestCount = parseInt(document.getElementById('guest_count').value, 10);
+      if (guestCount < 1 || guestCount > 8) return;
+      
+      const selectedTableInput = document.getElementById('selected_table');
+      const selectedTableId = parseInt(selectedTableInput.value, 10);
+
+      // Auto check cards
+      const cards = document.querySelectorAll('.table-card');
+      cards.forEach(card => {
+        const capacity = parseInt(card.dataset.seats, 10);
+        if (capacity < guestCount) {
+          card.style.display = 'none';
+          if (selectedTableId === parseInt(card.dataset.id, 10)) {
+            selectedTableInput.value = '';
+            card.classList.remove('selected');
+          }
+        } else {
+          card.style.display = 'block';
+        }
+      });
+      validateSubmitButton();
+    }
+
+    /**
+     * Retrieve live table availability from API and update Grid
+     */
+    async function fetchTableAvailability() {
+      const date = document.getElementById('booking_date').value;
+      const slot = document.getElementById('time_slot').value;
+      if (!date || !slot) return;
+
+      const grid = document.getElementById('availability-grid');
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--text-muted);">Checking table availability...</div>';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/tables/available?date=${date}&slot=${slot}`);
+        const data = await res.json();
+        
+        if (!data.success) {
+          grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--danger);">${data.message}</div>`;
+          return;
+        }
+
+        // Available table map lookup
+        const freeTableIds = new Set(data.tables.map(t => t.id));
+
+        // System has exactly 10 tables:
+        const allTables = [
+          { id: 1, seats: 2 },
+          { id: 2, seats: 2 },
+          { id: 3, seats: 2 },
+          { id: 4, seats: 2 },
+          { id: 5, seats: 4 },
+          { id: 6, seats: 4 },
+          { id: 7, seats: 4 },
+          { id: 8, seats: 6 },
+          { id: 9, seats: 6 },
+          { id: 10, seats: 8 }
+        ];
+
+        grid.innerHTML = '';
+        allTables.forEach(table => {
+          const isFree = freeTableIds.has(table.id);
+          const card = document.createElement('div');
+          card.className = `table-card ${isFree ? 'free' : 'occupied'}`;
+          card.dataset.id = table.id;
+          card.dataset.seats = table.seats;
+          
+          card.innerHTML = `
+            <div class="table-num">T-${table.id}</div>
+            <div class="table-seats">${table.seats} Seats</div>
+            <span class="table-status-label">${isFree ? 'Free' : 'Occupied'}</span>
+          `;
+
+          if (isFree) {
+            card.onclick = () => selectTable(table.id);
+          } else {
+            card.onclick = null;
+          }
+
+          grid.appendChild(card);
+        });
+
+        // Clear previous selected table input since slots changed
+        document.getElementById('selected_table').value = '';
+        validateSubmitButton();
+
+        // Run party filter check immediately
+        handlePartySizeChange();
+      } catch (err) {
+        console.error('Error fetching tables:', err);
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--danger);">Failed to query database table grid.</div>';
+      }
+    }
+
+    /**
+     * Set selected table in forms
+     */
+    function selectTable(id) {
+      // Clear previous selected
+      document.querySelectorAll('.table-card').forEach(c => c.classList.remove('selected'));
+      
+      const card = document.querySelector(`.table-card[data-id="${id}"]`);
+      if (card && !card.classList.contains('occupied')) {
+        card.classList.add('selected');
+        document.getElementById('selected_table').value = id;
+      }
+      validateSubmitButton();
+    }
+
+    /**
+     * Validate if booking form is ready to submit
+     */
+    function validateSubmitButton() {
+      const guestName = document.getElementById('guest_name').value;
+      const phone = document.getElementById('phone').value;
+      const email = document.getElementById('email').value;
+      const selectedTable = document.getElementById('selected_table').value;
+      
+      const btn = document.getElementById('btn-submit-booking');
+      btn.disabled = !(guestName && phone && email && selectedTable);
+    }
+
+    // Attach listeners to input fields for validation
+    ['guest_name', 'phone', 'email'].forEach(id => {
+      document.getElementById(id).addEventListener('input', validateSubmitButton);
+    });
+
+    /**
+     * Action to POST booking and trigger Razorpay flow
+     */
+    async function handleFormSubmit(event) {
+      event.preventDefault();
+      
+      const guestName = document.getElementById('guest_name').value;
+      const phone = document.getElementById('phone').value;
+      const email = document.getElementById('email').value;
+      const date = document.getElementById('booking_date').value;
+      const slot = document.getElementById('time_slot').value;
+      const guestCount = parseInt(document.getElementById('guest_count').value, 10);
+      const roomNumber = document.getElementById('room_number').value;
+      const tableNumber = parseInt(document.getElementById('selected_table').value, 10);
+
+      // Get slots mapped to booking_time
+      let bookingTime = '12:00';
+      if (slot === 'Breakfast') bookingTime = '07:00';
+      else if (slot === 'Dinner') bookingTime = '19:00';
+
+      // Dietary preferences checks
+      const checkedBoxes = document.querySelectorAll('input[name="dietary"]:checked');
+      const dietaryArray = Array.from(checkedBoxes).map(b => b.value);
+      const dietaryPreference = dietaryArray.length > 0 ? dietaryArray.join(', ') : 'None';
+
+      const btn = document.getElementById('btn-submit-booking');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Creating Reservation...';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/bookings`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            guest_name: guestName,
+            phone,
+            email,
+            booking_date: date,
+            booking_time: bookingTime,
+            guest_count: guestCount,
+            room_number: roomNumber || undefined,
+            table_number: tableNumber,
+            dietary_preference: dietaryPreference
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          alert(`Booking error: ${data.message}`);
+          btn.disabled = false;
+          btn.innerHTML = 'Confirm Booking & Proceed to Payment';
+          return;
+        }
+
+        // Keep reference to booking ID
+        pendingBookingId = data.bookingId;
+
+        // Transition views
+        document.getElementById('booking-form-view').style.display = 'none';
+        document.getElementById('payment-processing-view').style.display = 'block';
+
+        // Proceed to Razorpay Payments creation
+        await launchRazorpayPaymentFlow(pendingBookingId, guestName, email, phone);
+      } catch (err) {
+        console.error(err);
+        alert('Failed to connect to reservations server.');
+        btn.disabled = false;
+        btn.innerHTML = 'Confirm Booking & Proceed to Payment';
+      }
+    }
+
+    /**
+     * Call payment create-order and launch Razorpay checkout modal
+     */
+    async function launchRazorpayPaymentFlow(bookingId, guestName, email, phone) {
+      try {
+        const res = await fetch(`${API_BASE}/api/payment/create-order`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ booking_id: bookingId })
+        });
+        
+        const orderData = await res.json();
+        if (!res.ok || !orderData.success) {
+          alert('Failed to generate payment link. Retrying...');
+          return;
+        }
+
+        const options = {
+          key: orderData.key_id,
+          amount: Math.round(orderData.amount * 100), // in paise
+          currency: orderData.currency,
+          name: 'Aura Cafe',
+          description: `Table Reservation Payment (Booking #${bookingId})`,
+          order_id: orderData.order_id,
+          prefill: {
+            name: guestName,
+            email: email,
+            contact: phone
+          },
+          theme: {
+            color: '#0d9488'
+          },
+          handler: async function (response) {
+            // Securely verify signature on payment success
+            await verifyRazorpayPayment(
+              bookingId,
+              response.razorpay_order_id,
+              response.razorpay_payment_id,
+              response.razorpay_signature,
+              guestName,
+              email,
+              phone
+            );
+          },
+          modal: {
+            ondismiss: function () {
+              console.log('Payment modal dismissed by guest.');
+            }
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+      } catch (err) {
+        console.error('Error starting Razorpay checkout:', err);
+      }
+    }
+
+    /**
+     * Retry payment creation trigger
+     */
+    function retryPaymentCreation() {
+      if (!pendingBookingId) return;
+      const guestName = document.getElementById('guest_name').value;
+      const phone = document.getElementById('phone').value;
+      const email = document.getElementById('email').value;
+      launchRazorpayPaymentFlow(pendingBookingId, guestName, email, phone);
+    }
+
+    /**
+     * Verifies signature on server
+     */
+    async function verifyRazorpayPayment(bookingId, orderId, paymentId, signature, name, email, phone) {
+      try {
+        const res = await fetch(`${API_BASE}/api/payment/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            booking_id: bookingId,
+            razorpay_order_id: orderId,
+            razorpay_payment_id: paymentId,
+            razorpay_signature: signature
+          })
+        });
+
+        const verifyResult = await res.json();
+        if (res.ok && verifyResult.success) {
+          // Transition to success screen
+          await showConfirmationScreen(bookingId, name, paymentId);
+        } else {
+          alert(`Payment signature verification failed: ${verifyResult.message}`);
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Server verification link failed.');
+      }
+    }
+
+    /**
+     * Fetch confirmation details and QR code image
+     */
+    async function showConfirmationScreen(bookingId, name, paymentId) {
+      document.getElementById('payment-processing-view').style.display = 'none';
+      document.getElementById('confirmation-view').style.display = 'block';
+
+      const date = document.getElementById('booking_date').value;
+      const slot = document.getElementById('time_slot').value;
+      const tableNumber = document.getElementById('selected_table').value;
+
+      document.getElementById('conf-booking-id').innerText = `#${bookingId}`;
+      document.getElementById('conf-guest-name').innerText = name;
+      document.getElementById('conf-datetime').innerText = `${date} (${slot})`;
+      document.getElementById('conf-table').innerText = `Table ${tableNumber}`;
+      document.getElementById('conf-transaction-id').innerText = paymentId;
+
+      try {
+        // Retrieve QR Code from our backend using the qrcode package
+        const qrRes = await fetch(`${API_BASE}/api/bookings/${bookingId}/qrcode`);
+        const qrData = await qrRes.json();
+        if (qrData.success) {
+          document.getElementById('conf-qr-code').src = qrData.qr_code;
+        }
+      } catch (err) {
+        console.error('QR code fetch failed:', err);
+      }
+    }
+
+    /**
+     * Reset view back to form
+     */
+    function resetBookingPortal() {
+      pendingBookingId = null;
+      document.getElementById('booking-portal-form').reset();
+      
+      // Default to tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('booking_date').value = tomorrow.toISOString().split('T')[0];
+
+      // Reset submit button
+      const btn = document.getElementById('btn-submit-booking');
+      btn.disabled = true;
+      btn.innerHTML = 'Confirm Booking & Proceed to Payment';
+
+      // Reset views
+      document.getElementById('confirmation-view').style.display = 'none';
+      document.getElementById('booking-form-view').style.display = 'block';
+
+      // Reload tables
+      fetchTableAvailability();
+    }
+  </script>
+
+</body>
+</html>

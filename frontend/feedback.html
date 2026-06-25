@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aura Cafe — Guest Feedback Form</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: var(--bg-primary);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      font-family: var(--font-primary);
+      color: var(--text-main);
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .glow-sphere {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      filter: blur(150px);
+      z-index: -1;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+    .glow-1 {
+      top: -10%;
+      left: -10%;
+      background: var(--radial-glow-1);
+    }
+    .glow-2 {
+      bottom: -10%;
+      right: -10%;
+      background: var(--radial-glow-2);
+    }
+
+    .feedback-container {
+      width: 100%;
+      max-width: 600px;
+      background: var(--bg-glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-premium);
+      padding: 35px;
+      transition: var(--transition-smooth);
+      position: relative;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .feedback-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .feedback-header h1 {
+      font-size: 2.1rem;
+      font-weight: 700;
+      background: var(--text-brand-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0 0 8px 0;
+    }
+
+    .feedback-header p {
+      color: var(--text-muted);
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    .rating-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px dashed var(--border-glass);
+    }
+    .rating-row:last-of-type {
+      border-bottom: none;
+    }
+
+    .rating-label {
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    /* Clickable Stars rating */
+    .star-rating {
+      display: inline-flex;
+      flex-direction: row-reverse; /* For easy sibling selection hover styling */
+      gap: 6px;
+    }
+
+    .star-rating input {
+      display: none;
+    }
+
+    .star-rating label {
+      font-size: 1.8rem;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: color 0.15s ease-in-out;
+    }
+
+    /* Highlight stars on hover & checked status */
+    .star-rating label:hover,
+    .star-rating label:hover ~ label,
+    .star-rating input:checked ~ label {
+      color: #f59e0b; /* Golden Amber color */
+    }
+
+    .comment-area {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .comment-area label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    .textarea-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feedback-textarea {
+      background: var(--bg-input);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-size: 0.95rem;
+      color: var(--text-main);
+      font-family: var(--font-primary);
+      transition: var(--transition-smooth);
+      outline: none;
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .feedback-textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-glow);
+    }
+
+    .char-counter {
+      align-self: flex-end;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      margin-top: 25px;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background: #0b7a70;
+      box-shadow: var(--shadow-premium);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Status card views */
+    .status-view {
+      text-align: center;
+      padding: 20px 10px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .status-icon {
+      width: 65px;
+      height: 65px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0 auto 20px auto;
+      font-size: 2.2rem;
+    }
+
+    .success-icon {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent);
+    }
+
+    .warning-icon {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+    }
+
+    .error-icon {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+    }
+
+    .spinner {
+      border: 3px solid var(--border-glass);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="glow-sphere glow-1"></div>
+  <div class="glow-sphere glow-2"></div>
+
+  <div class="feedback-container">
+    
+    <!-- 1. LOADING SCREEN -->
+    <div id="view-loading" class="status-view">
+      <div class="spinner"></div>
+      <p style="color: var(--text-muted);">Fetching reservation details...</p>
+    </div>
+
+    <!-- 2. ERROR SCREEN -->
+    <div id="view-error" class="status-view" style="display: none;">
+      <div class="status-icon error-icon">✕</div>
+      <h3 style="font-weight: 700; margin-bottom: 5px;">Invalid Booking</h3>
+      <p id="error-message" style="color: var(--text-muted); margin-bottom: 20px;">The specified booking was not found or has not checked out yet.</p>
+    </div>
+
+    <!-- 3. DUPLICATE GUARD SCREEN -->
+    <div id="view-duplicate" class="status-view" style="display: none;">
+      <div class="status-icon warning-icon">!</div>
+      <h3 style="font-weight: 700; margin-bottom: 5px;">Feedback Already Submitted</h3>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">Thank you! Feedback for this dining reservation has already been recorded in our system.</p>
+    </div>
+
+    <!-- 4. FEEDBACK FORM VIEW -->
+    <div id="view-form" style="display: none;">
+      <div class="feedback-header">
+        <img src="images/logo.png" alt="Aura Cafe Logo" style="height: 76px; object-fit: contain; margin-bottom: 8px;">
+        <p id="feedback-personalized-greet">Dear guest, thank you for dining with us. Please share your rating.</p>
+      </div>
+
+      <form id="feedback-form" onsubmit="submitFeedback(event)">
+        <div style="background: var(--bg-secondary); padding: 15px 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-glass); margin-bottom: 20px;">
+          
+          <!-- Overall Experience -->
+          <div class="rating-row">
+            <span class="rating-label">Overall Experience</span>
+            <div class="star-rating">
+              <input type="radio" id="star-overall-5" name="overall_rating" value="5" required onclick="validateForm()"><label for="star-overall-5">★</label>
+              <input type="radio" id="star-overall-4" name="overall_rating" value="4" onclick="validateForm()"><label for="star-overall-4">★</label>
+              <input type="radio" id="star-overall-3" name="overall_rating" value="3" onclick="validateForm()"><label for="star-overall-3">★</label>
+              <input type="radio" id="star-overall-2" name="overall_rating" value="2" onclick="validateForm()"><label for="star-overall-2">★</label>
+              <input type="radio" id="star-overall-1" name="overall_rating" value="1" onclick="validateForm()"><label for="star-overall-1">★</label>
+            </div>
+          </div>
+
+          <!-- Food Quality -->
+          <div class="rating-row">
+            <span class="rating-label">Food Quality</span>
+            <div class="star-rating">
+              <input type="radio" id="star-food-5" name="food_rating" value="5" required onclick="validateForm()"><label for="star-food-5">★</label>
+              <input type="radio" id="star-food-4" name="food_rating" value="4" onclick="validateForm()"><label for="star-food-4">★</label>
+              <input type="radio" id="star-food-3" name="food_rating" value="3" onclick="validateForm()"><label for="star-food-3">★</label>
+              <input type="radio" id="star-food-2" name="food_rating" value="2" onclick="validateForm()"><label for="star-food-2">★</label>
+              <input type="radio" id="star-food-1" name="food_rating" value="1" onclick="validateForm()"><label for="star-food-1">★</label>
+            </div>
+          </div>
+
+          <!-- Service -->
+          <div class="rating-row">
+            <span class="rating-label">Service Quality</span>
+            <div class="star-rating">
+              <input type="radio" id="star-service-5" name="service_rating" value="5" required onclick="validateForm()"><label for="star-service-5">★</label>
+              <input type="radio" id="star-service-4" name="service_rating" value="4" onclick="validateForm()"><label for="star-service-4">★</label>
+              <input type="radio" id="star-service-3" name="service_rating" value="3" onclick="validateForm()"><label for="star-service-3">★</label>
+              <input type="radio" id="star-service-2" name="service_rating" value="2" onclick="validateForm()"><label for="star-service-2">★</label>
+              <input type="radio" id="star-service-1" name="service_rating" value="1" onclick="validateForm()"><label for="star-service-1">★</label>
+            </div>
+          </div>
+
+          <!-- Ambience -->
+          <div class="rating-row">
+            <span class="rating-label">Restaurant Ambience</span>
+            <div class="star-rating">
+              <input type="radio" id="star-ambience-5" name="ambience_rating" value="5" required onclick="validateForm()"><label for="star-ambience-5">★</label>
+              <input type="radio" id="star-ambience-4" name="ambience_rating" value="4" onclick="validateForm()"><label for="star-ambience-4">★</label>
+              <input type="radio" id="star-ambience-3" name="ambience_rating" value="3" onclick="validateForm()"><label for="star-ambience-3">★</label>
+              <input type="radio" id="star-ambience-2" name="ambience_rating" value="2" onclick="validateForm()"><label for="star-ambience-2">★</label>
+              <input type="radio" id="star-ambience-1" name="ambience_rating" value="1" onclick="validateForm()"><label for="star-ambience-1">★</label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Comments and Live counter -->
+        <div class="comment-area">
+          <label for="feedback-comment">Additional Comments</label>
+          <div class="textarea-container">
+            <textarea id="feedback-comment" class="feedback-textarea" maxlength="300" placeholder="Tell us more about your dining experience..." oninput="updateCharCount()"></textarea>
+            <span id="char-count" class="char-counter">300 characters remaining</span>
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submit" class="btn-submit" disabled>
+          Submit Feedback
+        </button>
+      </form>
+    </div>
+
+    <!-- 5. SUCCESS SCREEN VIEW -->
+    <div id="view-success" class="status-view" style="display: none;">
+      <div class="status-icon success-icon">✓</div>
+      <h2 style="font-weight: 700; color: var(--accent); margin-bottom: 5px;" id="success-heading">Thank You!</h2>
+      <p style="color: var(--text-muted); font-size: 1rem; margin-bottom: 15px;">Your feedback has been recorded successfully. We appreciate your valuable time.</p>
+    </div>
+
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+    let bookingId = null;
+
+    // Load active Theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+
+    // Read URL search parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    bookingId = urlParams.get('booking_id') || urlParams.get('bookingId');
+
+    // Boot checkout check on load
+    checkBookingStatus();
+
+    /**
+     * Verifies if booking exists, is completed (checked out), and duplicate guard is clean
+     */
+    async function checkBookingStatus() {
+      if (!bookingId) {
+        showErrorView('Missing booking parameter. Please verify your feedback invitation link.');
+        return;
+      }
+
+      try {
+        // 1. Fetch booking info to verify exists and checked out
+        const res = await fetch(`${API_BASE}/api/bookings/${bookingId}`);
+        const data = await res.json();
+        
+        if (!res.ok || !data.success || !data.booking) {
+          showErrorView('Invalid booking reference. No record found for the specified booking ID.');
+          return;
+        }
+
+        const booking = data.booking;
+
+        if (booking.status !== 'Completed') {
+          showErrorView('Dining booking is still active. Feedback can only be submitted after checkout.');
+          return;
+        }
+
+        // 2. Fetch feedback list to check if duplicate exists
+        const feedRes = await fetch(`${API_BASE}/api/feedback`);
+        const feedData = await feedRes.json();
+        
+        if (feedRes.ok && feedData.success) {
+          const alreadySubmitted = feedData.feedback.some(f => f.booking_id === parseInt(bookingId, 10));
+          if (alreadySubmitted) {
+            showDuplicateView();
+            return;
+          }
+        }
+
+        // Display personalized greet card
+        const timeSlot = booking.booking_time === '07:00' ? 'breakfast' : (booking.booking_time === '12:00' ? 'lunch' : 'dinner');
+        document.getElementById('feedback-personalized-greet').innerHTML = 
+          `Dear <strong>${booking.guest_name}</strong>, thank you for dining with us. Please share your rating for your ${timeSlot} on ${booking.booking_date}.`;
+
+        // Switch to form view
+        transitionView('view-form');
+      } catch (err) {
+        console.error(err);
+        showErrorView('Server connection error. Failed to retrieve details.');
+      }
+    }
+
+    /**
+     * Validates if all star rating radio selections are checked
+     */
+    function validateForm() {
+      const overall = document.querySelector('input[name="overall_rating"]:checked');
+      const food = document.querySelector('input[name="food_rating"]:checked');
+      const service = document.querySelector('input[name="service_rating"]:checked');
+      const ambience = document.querySelector('input[name="ambience_rating"]:checked');
+
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = !(overall && food && service && ambience);
+    }
+
+    /**
+     * Live character counter fortextarea
+     */
+    function updateCharCount() {
+      const txt = document.getElementById('feedback-comment');
+      const remaining = 300 - txt.value.length;
+      document.getElementById('char-count').innerText = `${remaining} characters remaining`;
+    }
+
+    /**
+     * Submit feedback to POST /api/feedback
+     */
+    async function submitFeedback(event) {
+      event.preventDefault();
+
+      const overall = parseInt(document.querySelector('input[name="overall_rating"]:checked').value, 10);
+      const food = parseInt(document.querySelector('input[name="food_rating"]:checked').value, 10);
+      const service = parseInt(document.querySelector('input[name="service_rating"]:checked').value, 10);
+      const ambience = parseInt(document.querySelector('input[name="ambience_rating"]:checked').value, 10);
+      const comment = document.getElementById('feedback-comment').value;
+
+      const btn = document.getElementById('btn-submit');
+      btn.disabled = true;
+      btn.innerText = 'Submitting Feedback...';
+
+      try {
+        const res = await fetch(`${API_BASE}/api/feedback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            booking_id: parseInt(bookingId, 10),
+            overall_rating: overall,
+            food_rating: food,
+            service_rating: service,
+            ambience_rating: ambience,
+            comment
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          document.getElementById('success-heading').innerText = `Thank You, ${data.guest_name}!`;
+          transitionView('view-success');
+        } else {
+          alert(`Failed to save feedback: ${data.message}`);
+          btn.disabled = false;
+          btn.innerText = 'Submit Feedback';
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Server connection error. Failed to save.');
+        btn.disabled = false;
+        btn.innerText = 'Submit Feedback';
+      }
+    }
+
+    // View transitioning helpers
+    function transitionView(viewId) {
+      ['view-loading', 'view-error', 'view-duplicate', 'view-form', 'view-success'].forEach(id => {
+        document.getElementById(id).style.display = (id === viewId) ? 'block' : 'none';
+      });
+    }
+
+    function showErrorView(message) {
+      document.getElementById('error-message').innerText = message;
+      transitionView('view-error');
+    }
+
+    function showDuplicateView() {
+      transitionView('view-duplicate');
+    }
+  </script>
+
+</body>
+</html>

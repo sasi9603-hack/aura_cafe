@@ -1,0 +1,24 @@
+{
+  "name": "aura-cafe-booking-system",
+  "version": "1.0.0",
+  "description": "Hotel Restaurant Table Booking & Menu Management System for Aura Cafe",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "test": "node tests/run_tests.js && node tests/public_orders_test.js && node tests/room_service_test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.2",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.11",
+    "qrcode": "^1.5.4",
+    "razorpay": "^2.9.6",
+    "sqlite3": "^5.1.7",
+    "twilio": "^6.0.2"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
