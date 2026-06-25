@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="style.css">
   <!-- Razorpay Checkout SDK -->
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="config.js"></script>
   <style>
     body {
       background: var(--bg-primary);
@@ -513,10 +512,7 @@
   </div>
 
   <script>
-    const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-      ? window.location.origin
-      : CONFIG.API_BASE;
-
+    const API_BASE = window.location.origin;
     let pendingBookingId = null;
 
     // Load active Theme
