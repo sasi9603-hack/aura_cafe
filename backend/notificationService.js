@@ -17,10 +17,19 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Configure Twilio SMS client
-const twilioClient = (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN)
-  ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-  : null;
+// Configure Twilio SMS client safely
+let twilioClient = null;
+try {
+  const hasTwilioConfig = process.env.TWILIO_ACCOUNT_SID && 
+                          process.env.TWILIO_ACCOUNT_SID.startsWith('AC') && 
+                          process.env.TWILIO_AUTH_TOKEN;
+  if (hasTwilioConfig) {
+    twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+  }
+} catch (err) {
+  console.error('[Twilio Init Failed]:', err.message);
+}
+
 
 /**
  * Utility helper to get user-friendly slot name from start time
