@@ -1,5 +1,8 @@
 // Aura Cafe Booking & Menu Management App State
-const API_BASE = window.location.origin;
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? window.location.origin
+  : CONFIG.API_BASE;
+
 
 let authToken = sessionStorage.getItem('authToken') || null;
 
