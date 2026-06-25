@@ -1,5 +1,8 @@
 // menu.js - Client Side Scripting for Digital Dining Menu
-const API_BASE = window.location.origin;
+const API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? window.location.origin
+  : CONFIG.API_BASE;
+
 
 let tableNum = null;
 let roomNum = null;
