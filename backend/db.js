@@ -397,133 +397,157 @@ async function initDb() {
   const menuCount = await dbQuery.get('SELECT COUNT(*) as count FROM menu_items');
   if (menuCount.count === 0) {
     const items = [
-      // VEG BURGERS
-      ['Crispy Veg Burger', 'Veg Burgers', 99.00, 'None', 'https://images.unsplash.com/photo-1571091718767-18b5b1457add'],
-      ['Paneer Burger', 'Veg Burgers', 119.00, 'None', 'https://images.unsplash.com/photo-1525059696034-4967a8e1dca2'],
-      ['Veg Mini Burger 8Pic', 'Veg Burgers', 79.00, 'None', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd'],
+      // Veg Burgers
+      ['Crispy Veg Burger', 'Veg Burgers', 99.00, 'None', 'https://images.unsplash.com/photo-1525059696034-4967a8e1dca2?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Paneer Burger', 'Veg Burgers', 119.00, 'None', 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Veg Mini Burger', 'Veg Burgers', 79.00, 'None', 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // EGG
-      ['Plain Egg', 'Egg Items', 29.00, 'None', 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc'],
-      ['Scrambled Egg', 'Egg Items', 39.00, 'None', 'https://images.unsplash.com/photo-1551183053-bf91a1d81141'],
-      ['Bread Omlete', 'Egg Items', 70.00, 'None', 'https://images.unsplash.com/photo-1525351484163-7529414344d8'],
-      ['Sunny Side Up', 'Egg Items', 29.00, 'None', 'https://images.unsplash.com/photo-1506084868230-bb9d95c24759'],
-      ['Cheese omlete', 'Egg Items', 39.00, 'None', 'https://images.unsplash.com/photo-1600271886742-f049cd451bba'],
+      // Non-Veg Burgers
+      ['BBQ Chicken Burger', 'Non-Veg Burgers', 129.00, 'None', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken Mini Burger', 'Non-Veg Burgers', 99.00, 'None', 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken Smash Burger', 'Non-Veg Burgers', 139.00, 'None', 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Crispy Chicken Burger', 'Non-Veg Burgers', 119.00, 'None', 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // NON VEG BURGERS
-      ['Crispy Chicken Burger', 'Non-Veg Burgers', 119.00, 'None', 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b'],
-      ['BBQ Chicken Burger', 'Non-Veg Burgers', 129.00, 'None', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd'],
-      ['Chicken Smash Burger', 'Non-Veg Burgers', 139.00, 'None', 'https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5'],
-      ['Chicken Mini Burger 8 Pic', 'Non-Veg Burgers', 99.00, 'None', 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd'],
+      // Egg Items
+      ['Bread Omelette', 'Egg Items', 70.00, 'None', 'https://images.unsplash.com/photo-1600271886742-f049cd451bba?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Cheese Omelette', 'Egg Items', 39.00, 'None', 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Plain Egg', 'Egg Items', 29.00, 'None', 'https://images.unsplash.com/photo-1582819509237-d5b75f20ff7a?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Scrambled Egg', 'Egg Items', 39.00, 'None', 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Sunny Side Up', 'Egg Items', 29.00, 'None', 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // FRIED VEG
-      ['French Fries', 'Fried Veg', 69.00, 'None', 'https://images.unsplash.com/photo-1576107232684-1279f390859f'],
-      ['Peri Peri Fries', 'Fried Veg', 89.00, 'None', 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877'],
-      ['Veg Fried Chees Balls', 'Fried Veg', 79.00, 'None', 'https://images.unsplash.com/photo-1548340748-6d2b7d7db87d'],
-      ['Smiley Fries', 'Fried Veg', 69.00, 'None', 'https://images.unsplash.com/photo-1576107232684-1279f390859f'],
-      ['Veg Nuggets', 'Fried Veg', 79.00, 'None', 'https://images.unsplash.com/photo-1562967914-608f82629710'],
+      // Fried Veg
+      ['French Fries', 'Fried Veg', 69.00, 'None', 'https://images.unsplash.com/photo-1576107232684-1279f390859f?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Peri Peri Fries', 'Fried Veg', 89.00, 'None', 'https://images.unsplash.com/photo-1573080496219-bb080dd4f877?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Smiley Fries', 'Fried Veg', 69.00, 'None', 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Veg Fried Cheese Balls', 'Fried Veg', 79.00, 'None', 'https://images.unsplash.com/photo-1458934876533-9becb2380c47?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Veg Nuggets', 'Fried Veg', 79.00, 'None', 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // VEG STARTERS
-      ['Chilli Paneer', 'Veg Starters', 79.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Gobi 65', 'Veg Starters', 69.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
-      ['Chilli Mushroom', 'Veg Starters', 95.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Mushroom 65', 'Veg Starters', 89.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
-      ['Paneer Manchurian', 'Veg Starters', 99.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Paneer 65', 'Veg Starters', 89.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
-      ['Baby Corn Starter', 'Veg Starters', 89.00, 'None', 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd'],
-      ['Gobi Manchurian', 'Veg Starters', 69.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
+      // Veg Starters
+      ['Baby Corn Starter', 'Veg Starters', 89.00, 'None', 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chilli Mushroom', 'Veg Starters', 95.00, 'None', 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chilli Paneer', 'Veg Starters', 79.00, 'None', 'https://images.unsplash.com/photo-1625944230945-1b7dd3b949ab?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Gobi 65', 'Veg Starters', 69.00, 'None', 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Gobi Manchurian', 'Veg Starters', 69.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Mushroom 65', 'Veg Starters', 89.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Paneer 65', 'Veg Starters', 89.00, 'None', 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Paneer Manchurian', 'Veg Starters', 99.00, 'None', 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // NON-VEG STARTERS
-      ['Chicken 65', 'Non-Veg Starters', 120.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143'],
-      ['Chilli Chicken', 'Non-Veg Starters', 139.00, 'None', 'https://images.unsplash.com/photo-1598515214211-89d3e73ae83b'],
-      ['Lemon Chicken', 'Non-Veg Starters', 140.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143'],
-      ['Pepper Chicken', 'Non-Veg Starters', 140.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143'],
-      ['Garlic Chicken', 'Non-Veg Starters', 119.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143'],
-      ['Dragon Chicken', 'Non-Veg Starters', 160.00, 'None', 'https://images.unsplash.com/photo-1527324688151-0e627063f2b1'],
-      ['Kaju Chicken', 'Non-Veg Starters', 159.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143'],
-      ['Juicy Lolipop', 'Non-Veg Starters', 180.00, 'None', 'https://images.unsplash.com/photo-1608039829572-78524f79c4c7'],
-      ['Dry Chicken', 'Non-Veg Starters', 139.00, 'None', 'https://images.unsplash.com/photo-1598515214211-89d3e73ae83b'],
-      ['Chilly Prawns', 'Non-Veg Starters', 170.00, 'None', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641'],
-      ['Prawns 65', 'Non-Veg Starters', 149.00, 'None', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641'],
-      ['Prawns Pepper', 'Non-Veg Starters', 190.00, 'None', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641'],
-      ['Prawns Manchurian', 'Non-Veg Starters', 190.00, 'None', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641'],
+      // Non-Veg Starters
+      ['Chicken 65', 'Non-Veg Starters', 120.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chilli Chicken', 'Non-Veg Starters', 139.00, 'None', 'https://images.unsplash.com/photo-1624726175512-19b9baf9fbd1?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chilly Prawns', 'Non-Veg Starters', 170.00, 'None', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Dragon Chicken', 'Non-Veg Starters', 160.00, 'None', 'https://images.unsplash.com/photo-1527324688151-0e627063f2b1?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Dry Chicken', 'Non-Veg Starters', 139.00, 'None', 'https://images.unsplash.com/photo-1542367592-8849eb950fd8?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Garlic Chicken', 'Non-Veg Starters', 119.00, 'None', 'https://images.unsplash.com/photo-1594756202469-9ff9799b2e4e?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Juicy Lollipop', 'Non-Veg Starters', 180.00, 'None', 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Kaju Chicken', 'Non-Veg Starters', 159.00, 'None', 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Lemon Chicken', 'Non-Veg Starters', 140.00, 'None', 'https://images.unsplash.com/photo-1608039829572-78524f79c4c7?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Pepper Chicken', 'Non-Veg Starters', 140.00, 'None', 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Prawns 65', 'Non-Veg Starters', 149.00, 'None', 'https://images.unsplash.com/photo-1444487233259-dae9d907a740?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Prawns Manchurian', 'Non-Veg Starters', 190.00, 'None', 'https://images.unsplash.com/photo-1534080564583-6be75777b70a?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Prawns Pepper', 'Non-Veg Starters', 190.00, 'None', 'https://images.unsplash.com/photo-1625938146369-adc83368bda7?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // BIRYANI
-      ['Peddamma Biriyani', 'Biryani', 140.00, 'None', 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8'],
+      // Biryani
+      ['Peddamma Chicken Biryani', 'Biryani', 140.00, 'None', 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Veg Biryani', 'Biryani', 250.00, 'None', 'https://images.unsplash.com/photo-1642821373181-696a54913e93?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // VEG FRIED RICE
-      ['Veg Fried Rice (Normal)', 'Fried Rice', 69.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
-      ['Veg Fried Rice (Schezwan)', 'Fried Rice', 79.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
-      ['Panner Fried Rice (Normal)', 'Fried Rice', 100.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Panner Fried Rice (Schezwan)', 'Fried Rice', 110.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Mushroom Fried Rice (Normal)', 'Fried Rice', 89.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
-      ['Mushroom Fried Rice (Schezwan)', 'Fried Rice', 99.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
-      ['Mixed Veg Fried Rice (Normal)', 'Fried Rice', 120.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
-      ['Mixed Veg Fried Rice (Schezwan)', 'Fried Rice', 140.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
-      ['Ghee Rice', 'Fried Rice', 79.00, 'None', 'https://images.unsplash.com/photo-1601050690597-df056fb4ce78'],
+      // Fried Rice
+      ['Veg Fried Rice', 'Fried Rice', 69.00, 'None', 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Paneer Fried Rice', 'Fried Rice', 100.00, 'None', 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Mushroom Fried Rice', 'Fried Rice', 89.00, 'None', 'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Mixed Veg Fried Rice', 'Fried Rice', 120.00, 'None', 'https://images.unsplash.com/photo-1512058564366-18510be2db19?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Ghee Rice', 'Fried Rice', 79.00, 'None', 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken Fried Rice', 'Fried Rice', 120.00, 'None', 'https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken Keema Rice', 'Fried Rice', 119.00, 'None', 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Egg Fried Rice', 'Fried Rice', 100.00, 'None', 'https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Prawns Fried Rice', 'Fried Rice', 150.00, 'None', 'https://images.unsplash.com/photo-1551504734-5ee1c4a1479b?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // FRIED RICE NON-VEG
-      ['Chicken Fried Rice (Normal)', 'Fried Rice', 120.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143'],
-      ['Chicken Fried Rice (Schezwan)', 'Fried Rice', 140.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143'],
-      ['Chicken Keema Rice (Normal)', 'Fried Rice', 119.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143'],
-      ['Chicken Keema Rice (Schezwan)', 'Fried Rice', 119.00, 'None', 'https://images.unsplash.com/photo-1603360946369-dc9bb6258143'],
-      ['Egg Rice (Normal)', 'Fried Rice', 100.00, 'None', 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc'],
-      ['Egg Rice (Schezwan)', 'Fried Rice', 120.00, 'None', 'https://images.unsplash.com/photo-1587486913049-53fc88980cfc'],
-      ['Prawns Rice (Normal)', 'Fried Rice', 150.00, 'None', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641'],
-      ['Prawns Rice (Schezwan)', 'Fried Rice', 170.00, 'None', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641'],
+      // Momos
+      ['Chicken Fried Momos', 'Momos', 119.00, 'None', 'https://images.unsplash.com/photo-1530785602389-07594beb8b73?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken Steamed Momos', 'Momos', 109.00, 'None', 'https://images.unsplash.com/photo-1594020292985-216a72a2c7ce?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Veg Fried Momos', 'Momos', 85.00, 'None', 'https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Veg Steamed Momos', 'Momos', 75.00, 'None', 'https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // MOMO'S
-      ["Veg Steamed Momo's", 'Momos', 75.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ["Veg Fried Momo's", 'Momos', 85.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ["Chicken Steamed Momo's", 'Momos', 109.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ["Chicken Fried Momo's", 'Momos', 119.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
+      // Noodles
+      ['Chicken Keema Noodles', 'Noodles', 119.00, 'None', 'https://images.unsplash.com/photo-1512331455279-c8ae8178f586?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken Noodles', 'Noodles', 120.00, 'None', 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Gobi Fried Noodles', 'Noodles', 79.00, 'None', 'https://images.unsplash.com/photo-1604382355076-af4b0eb60143?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Mixed Veg Noodles', 'Noodles', 119.00, 'None', 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Mushroom Noodles', 'Noodles', 99.00, 'None', 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Paneer Fried Noodles', 'Noodles', 100.00, 'None', 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Prawns Fried Noodles', 'Noodles', 139.00, 'None', 'https://images.unsplash.com/photo-1564834724105-918b73d1b9e0?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Veg Fried Noodles', 'Noodles', 69.00, 'None', 'https://images.unsplash.com/photo-1617470703128-26a0fc9af10f?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // NOODLES
-      ['Veg Fried Noodles (Normal)', 'Noodles', 69.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Veg Fried Noodles (Schezwan)', 'Noodles', 79.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Panner Fried Noodles (Normal)', 'Noodles', 100.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Panner Fried Noodles (Schezwan)', 'Noodles', 110.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Mushroom Noodles (Normal)', 'Noodles', 99.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Mushroom Noodles (Schezwan)', 'Noodles', 109.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Gobi Fried Noodles (Normal)', 'Noodles', 79.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Gobi Fried Noodles (Schezwan)', 'Noodles', 89.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Mixed Veg Noodles (Normal)', 'Noodles', 119.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Mixed Veg Noodles (Schezwan)', 'Noodles', 129.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
+      // Maggi
+      ['Cheese Maggi', 'Maggi', 79.00, 'None', 'https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Egg Maggi', 'Maggi', 59.00, 'None', 'https://images.unsplash.com/photo-1543353071-10c8ba85a904?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Plain Maggi', 'Maggi', 39.00, 'None', 'https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Paneer Maggi', 'Maggi', 79.00, 'None', 'https://images.unsplash.com/photo-1560684352-8497838a2229?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Veg Maggi', 'Maggi', 49.00, 'None', 'https://images.unsplash.com/photo-1608897013039-887f21d8c804?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // NOODLES NON-VEG
-      ['Chicken Noodles (Normal)', 'Noodles', 120.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Chicken Noodles (Schezwan)', 'Noodles', 140.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Chicken Keema Noodles (Normal)', 'Noodles', 119.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Chicken Keema Noodles (Schezwan)', 'Noodles', 119.00, 'None', 'https://images.unsplash.com/photo-1585032226651-759b368d7246'],
-      ['Prawns Fried Noodles (Normal)', 'Noodles', 139.00, 'None', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641'],
-      ['Prawns Fried Noodles (Schezwan)', 'Noodles', 149.00, 'None', 'https://images.unsplash.com/photo-1565557623262-b51c2513a641'],
+      // Milkshakes
+      ['Chocolate Shake', 'Milkshakes', 89.00, 'None', 'https://images.unsplash.com/photo-1541658016709-82535e94bc69?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Cold Coffee', 'Milkshakes', 139.00, 'None', 'https://images.unsplash.com/photo-1517701550927-30cf4ba1dba5?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Oreo Shake', 'Milkshakes', 99.00, 'None', 'https://images.unsplash.com/photo-1579954115545-a95591f28bfc?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Strawberry Shake', 'Milkshakes', 99.00, 'None', 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Vanilla Shake', 'Milkshakes', 79.00, 'None', 'https://images.unsplash.com/photo-1553787499-6f9133860278?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // MAGGIE
-      ['Maggie', 'Maggi', 39.00, 'None', 'https://images.unsplash.com/photo-1612966608967-312ba599102e'],
-      ['Veg Maggie', 'Maggi', 49.00, 'None', 'https://images.unsplash.com/photo-1612966608967-312ba599102e'],
-      ['Egg Maggie', 'Maggi', 59.00, 'None', 'https://images.unsplash.com/photo-1612966608967-312ba599102e'],
-      ['Paneer Maggie', 'Maggi', 79.00, 'None', 'https://images.unsplash.com/photo-1612966608967-312ba599102e'],
-      ['Cheese Maggie', 'Maggi', 79.00, 'None', 'https://images.unsplash.com/photo-1612966608967-312ba599102e'],
+      // Fresh Fruit Juices
+      ['Apple Juice', 'Fresh Fruit Juices', 90.00, 'None', 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Grapes Juice', 'Fresh Fruit Juices', 49.00, 'None', 'https://images.unsplash.com/photo-1532634922-8fe0b757fb13?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Lemon Juice', 'Fresh Fruit Juices', 39.00, 'None', 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Orange Juice', 'Fresh Fruit Juices', 69.00, 'None', 'https://images.unsplash.com/photo-1613478223719-2ab802602423?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Pineapple Juice', 'Fresh Fruit Juices', 70.00, 'None', 'https://images.unsplash.com/photo-1587883012610-e3df17d41270?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Pomegranate Juice', 'Fresh Fruit Juices', 90.00, 'None', 'https://images.unsplash.com/photo-1547514701-42782101795e?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Watermelon Juice', 'Fresh Fruit Juices', 49.00, 'None', 'https://images.unsplash.com/photo-1589476993333-f55b84301219?auto=format&fit=crop&w=600&h=400&q=80'],
 
-      // MILK SHAKE
-      ['Strawberry Shake', 'Milkshakes', 99.00, 'None', 'https://images.unsplash.com/photo-1572490122747-3968b75cc699'],
-      ['Oreo Shake', 'Milkshakes', 99.00, 'None', 'https://images.unsplash.com/photo-1572490122747-3968b75cc699'],
-      ['Vanilla Shake', 'Milkshakes', 79.00, 'None', 'https://images.unsplash.com/photo-1572490122747-3968b75cc699'],
-      ['Chocolate Shake', 'Milkshakes', 89.00, 'None', 'https://images.unsplash.com/photo-1572490122747-3968b75cc699'],
-      ['Cold Coffee', 'Milkshakes', 139.00, 'None', 'https://images.unsplash.com/photo-1572490122747-3968b75cc699'],
-
-      // FRESH FRUIT JUICE
-      ['Lemon', 'Fresh Fruit Juices', 39.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Watermelon', 'Fresh Fruit Juices', 49.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Pomegranate', 'Fresh Fruit Juices', 90.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Pineapple', 'Fresh Fruit Juices', 70.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Orange', 'Fresh Fruit Juices', 69.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Apple', 'Fresh Fruit Juices', 90.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      ['Grapes', 'Fresh Fruit Juices', 49.00, 'None', 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb'],
-      
       // Test suite required items (for public_orders_test.js and room_service_test.js compatibility)
-      ['Veg Biryani', 'Biryani', 250.00, 'None', 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8'],
-      ['Tomato Soup', 'Soups', 120.00, 'None', 'https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg'],
-      ['Gulab Jamun', 'Desserts', 90.00, 'None', 'https://i.pinimg.com/736x/30/6e/ac/306eac21d95c385ed486ea5da524b8a5.jpg']
+      ['Gulab Jamun', 'Desserts', 90.00, 'None', 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Tomato Soup', 'Soups', 120.00, 'None', 'https://images.unsplash.com/photo-1553881781-4c55163dc5fd?auto=format&fit=crop&w=600&h=400&q=80'],
+
+      // Hot Beverages (9 items)
+      ['Tea', 'Hot Beverages', 15.00, 'None', 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Coffee', 'Hot Beverages', 20.00, 'None', 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Lemon Tea', 'Hot Beverages', 25.00, 'None', 'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Sonti Tea', 'Hot Beverages', 25.00, 'None', 'https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Green Tea', 'Hot Beverages', 25.00, 'None', 'https://images.unsplash.com/photo-1597481499750-3e6b22637e12?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Badam Milk', 'Hot Beverages', 30.00, 'None', 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Boost', 'Hot Beverages', 30.00, 'None', 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Horlics', 'Hot Beverages', 30.00, 'None', 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Ginger Tea', 'Hot Beverages', 25.00, 'None', 'https://images.unsplash.com/photo-1556881286-fc6915169721?auto=format&fit=crop&w=600&h=400&q=80'],
+
+      // Fried Chicken Items (10 items)
+      ['Chicken strips 4pcs', 'Fried Chicken', 99.00, 'None', 'https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken wings 4pcs', 'Fried Chicken', 120.00, 'None', 'https://images.unsplash.com/photo-1527477396000-e27163b481c2?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken cheesy shorts 6 pcs', 'Fried Chicken', 99.00, 'None', 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken popcorn', 'Fried Chicken', 89.00, 'None', 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken nuggets 8pcs', 'Fried Chicken', 89.00, 'None', 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Peri peri chicken loaded', 'Fried Chicken', 139.00, 'None', 'https://images.unsplash.com/photo-1606755962773-d324e0a13086?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Fish finger 5pcs', 'Fried Chicken', 149.00, 'None', 'https://images.unsplash.com/photo-1444487233259-dae9d907a740?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Krunchy Fried chicken 1pc', 'Fried Chicken', 60.00, 'None', 'https://images.unsplash.com/photo-1594756202469-9ff9799b2e4e?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Krunchy Fried chicken 2pc', 'Fried Chicken', 110.00, 'None', 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Krunchy fried chicken bucket 12pcs', 'Fried Chicken', 669.00, 'None', 'https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=600&h=400&q=80'],
+
+      // Fruit Bowls (4 items)
+      ['Classic Fruit Bowl', 'Fruit Bowls', 55.00, 'None', 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Premium Fruit Bowl', 'Fruit Bowls', 99.00, 'None', 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Fruit Bowl with ICE Cream', 'Fruit Bowls', 79.00, 'None', 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Premium Fruit Bowl with ICE cream Nuts', 'Fruit Bowls', 119.00, 'None', 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&w=600&h=400&q=80'],
+
+      // Samosa (3 items)
+      ['Corn Samosa (4 Pcs)', 'Samosa', 59.00, 'None', 'https://images.unsplash.com/photo-1562967914-608f82629710?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Paneer Samosa (4 Pcs)', 'Samosa', 69.00, 'None', 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Chicken Samosa (4 Pcs)', 'Samosa', 69.00, 'None', 'https://images.unsplash.com/photo-1569058242253-92a9c755a0ec?auto=format&fit=crop&w=600&h=400&q=80'],
+
+      // Sandwich (8 items)
+      ['Paneer Sandwich', 'Sandwich', 69.00, 'None', 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Veg Sandwich', 'Sandwich', 59.00, 'None', 'https://images.unsplash.com/photo-1539252554453-80ab65ce3586?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Mixed Veg Sandwich', 'Sandwich', 69.00, 'None', 'https://images.unsplash.com/photo-1550507992-eb63ffee0847?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Mushroom Sandwich', 'Sandwich', 89.00, 'None', 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Cheesy Chicken Sandwich', 'Sandwich', 139.00, 'None', 'https://images.unsplash.com/photo-1541532713592-79a0317b6b77?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Tandoori Chicken Sandwich', 'Sandwich', 99.00, 'None', 'https://images.unsplash.com/photo-1521390188846-e2a3a97453a0?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Peri Peri Chicken Sandwich', 'Sandwich', 99.00, 'None', 'https://images.unsplash.com/photo-1521390188846-e2a3a97453a0?auto=format&fit=crop&w=600&h=400&q=80'],
+      ['Crispy Chicken Sandwich', 'Sandwich', 99.00, 'None', 'https://images.unsplash.com/photo-1625813506062-0aeb1d7a094b?auto=format&fit=crop&w=600&h=400&q=80']
     ];
 
     for (let item of items) {

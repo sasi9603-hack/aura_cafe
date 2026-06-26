@@ -2023,6 +2023,7 @@ body:not(.logged-out) .login-screen-container {
   border: none !important;
   position: relative !important;
   overflow: hidden !important;
+  animation: shimmer-pulse 1.8s ease-in-out infinite;
 }
 
 #order-entry-menu-items .menu-item-image-container img {
@@ -2102,5 +2103,12 @@ body:not(.logged-out) .login-screen-container {
   align-items: center;
   margin-top: 4px;
 }
+
+@keyframes shimmer-pulse {
+  0% { background-color: rgba(148, 163, 184, 0.08); }
+  50% { background-color: rgba(148, 163, 184, 0.18); }
+  100% { background-color: rgba(148, 163, 184, 0.08); }
+}
+
 
 

@@ -6,6 +6,14 @@ const API_BASE = (window.location.hostname === 'localhost' || window.location.ho
 
 let authToken = sessionStorage.getItem('authToken') || null;
 
+// Global Image Error Handler to prevent blank spots and log missing images
+window.handleImageError = function(imgElement, itemName, errorUrl) {
+  const failedUrl = imgElement.src;
+  console.warn(`[Image Load Failed] Menu Item: "${itemName}". Failed URL: ${failedUrl}`);
+  imgElement.onerror = null; // Prevent infinite loop if fallback image also fails
+  imgElement.src = errorUrl;
+};
+
 // Global Fetch Interceptor for Authentication
 const originalFetch = window.fetch;
 window.fetch = async function (url, options = {}) {
@@ -61,9 +69,11 @@ function isVegItem(item) {
       name.includes('fish') || 
       name.includes('paya') || 
       name.includes('omlete') || 
+      name.includes('omelette') || 
       name.includes('peddamma') ||
       cat.includes('non-veg') || 
-      cat.includes('non veg')) {
+      cat.includes('non veg') ||
+      cat.includes('egg')) {
     return false;
   }
   return true;
@@ -1931,13 +1941,18 @@ function renderAdminCategoryTabs() {
     'Fried Veg',
     'Veg Starters',
     'Non-Veg Starters',
+    'Fried Chicken',
+    'Samosa',
+    'Sandwich',
     'Biryani',
     'Fried Rice',
     'Momos',
     'Noodles',
     'Maggi',
     'Milkshakes',
+    'Hot Beverages',
     'Fresh Fruit Juices',
+    'Fruit Bowls',
     'Desserts',
     'Soups'
   ];
@@ -2228,7 +2243,7 @@ async function updateOrderEntryConsole() {
           <!-- Category Banner on top right of image -->
           <span class="admin-card-badge-right ${isVeg ? 'veg-cat' : ''}">${item.category}</span>
           
-          <img src="${imgPath}" alt="${item.name}">
+          <img src="${imgPath}" alt="${item.name}" loading="lazy" onerror="handleImageError(this, '${item.name.replace(/'/g, "\\'")}', 'images/food-placeholder.svg')">
         </div>
         <div class="admin-item-content">
           <div class="admin-item-name">${item.name}</div>
@@ -2265,13 +2280,18 @@ async function updateOrderEntryConsole() {
         'Fried Veg',
         'Veg Starters',
         'Non-Veg Starters',
+        'Fried Chicken',
+        'Samosa',
+        'Sandwich',
         'Biryani',
         'Fried Rice',
         'Momos',
         'Noodles',
         'Maggi',
         'Milkshakes',
+        'Hot Beverages',
         'Fresh Fruit Juices',
+        'Fruit Bowls',
         'Desserts',
         'Soups'
       ];

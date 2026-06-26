@@ -16,6 +16,14 @@ let dietFilter = 'ALL';
 let maxPriceLimit = 500;
 let sortBy = 'name-asc';
 
+// Global Image Error Handler to prevent blank spots and log missing images
+window.handleImageError = function(imgElement, itemName, errorUrl) {
+  const failedUrl = imgElement.src;
+  console.warn(`[Image Load Failed] Menu Item: "${itemName}". Failed URL: ${failedUrl}`);
+  imgElement.onerror = null; // Prevent infinite loop if fallback image also fails
+  imgElement.src = errorUrl;
+};
+
 // Initialize Digital Menu
 document.addEventListener('DOMContentLoaded', async () => {
   initTheme();
@@ -278,13 +286,18 @@ function renderCategoryTabs() {
     'Fried Veg',
     'Veg Starters',
     'Non-Veg Starters',
+    'Fried Chicken',
+    'Samosa',
+    'Sandwich',
     'Biryani',
     'Fried Rice',
     'Momos',
     'Noodles',
     'Maggi',
     'Milkshakes',
+    'Hot Beverages',
     'Fresh Fruit Juices',
+    'Fruit Bowls',
     'Desserts',
     'Soups'
   ];
@@ -335,9 +348,11 @@ function isVegItem(item) {
       name.includes('fish') || 
       name.includes('paya') || 
       name.includes('omlete') || 
+      name.includes('omelette') || 
       name.includes('peddamma') ||
       cat.includes('non-veg') || 
-      cat.includes('non veg')) {
+      cat.includes('non veg') ||
+      cat.includes('egg')) {
     return false;
   }
   return true;
@@ -429,7 +444,7 @@ function createMenuItemCard(item) {
       <!-- Category Banner on top right of image -->
       <span class="card-badge-right ${isVeg ? 'veg-cat' : ''}">${item.category}</span>
       
-      <img src="${imgPath}" alt="${item.name}">
+      <img src="${imgPath}" alt="${item.name}" loading="lazy" onerror="handleImageError(this, '${item.name.replace(/'/g, "\\'")}', 'images/food-placeholder.svg')">
     </div>
     
     <div class="menu-item-info">
@@ -510,13 +525,18 @@ function renderMenu() {
       'Fried Veg',
       'Veg Starters',
       'Non-Veg Starters',
+      'Fried Chicken',
+      'Samosa',
+      'Sandwich',
       'Biryani',
       'Fried Rice',
       'Momos',
       'Noodles',
       'Maggi',
       'Milkshakes',
+      'Hot Beverages',
       'Fresh Fruit Juices',
+      'Fruit Bowls',
       'Desserts',
       'Soups'
     ];
